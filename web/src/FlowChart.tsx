@@ -125,7 +125,7 @@ export default function FlowChart({
     const dl = graph.links.find((l) => l.kind === "direct");
     if (dl && dl.y0 != null && dl.y1 != null) {
       const mid = (dl.y0 + dl.y1) / 2;
-      const w = Math.max(dl.y1 - dl.y0, 9);
+      const w = Math.max(dl.y1 - dl.y0, 7);
       dl.y0 = mid - w / 2;
       dl.y1 = mid + w / 2;
       dl.width = w;
@@ -177,6 +177,7 @@ export default function FlowChart({
           const c2 = colorOfNode(t.id);
           // blend from the source gold into each target's accent colour
           const blend = l.kind === "direct" ? 100 : 40;
+          const isLeg2 = l.kind === "leg2";
           return (
             <linearGradient
               key={`g-${i}`}
@@ -188,7 +189,11 @@ export default function FlowChart({
               y2={0}
             >
               <stop offset="0%" stopColor={c1} stopOpacity={0.9} />
-              <stop offset={`${blend}%`} stopColor={c2} stopOpacity={0.95} />
+              {isLeg2 ? (
+                <stop offset="75%" stopColor={c1} stopOpacity={0.9} />
+              ) : (
+                <stop offset={`${blend}%`} stopColor={c2} stopOpacity={0.95} />
+              )}
               <stop offset="100%" stopColor={c2} stopOpacity={0.95} />
             </linearGradient>
           );
@@ -305,6 +310,7 @@ export default function FlowChart({
                   x={node.x1 + 8}
                   y={(node.y0 + node.y1) / 2 - 1}
                   className="flow-node-label"
+                  fill={color}
                 >
                   {nameOf(n.id)}
                 </text>
@@ -312,7 +318,7 @@ export default function FlowChart({
                   x={node.x1 + 8}
                   y={(node.y0 + node.y1) / 2 + 13}
                   className="flow-node-value"
-                  fill={color}
+                  fill="#a8b3c2"
                 >
                   {fmtUSD(n.value ?? 0)}
                 </text>
