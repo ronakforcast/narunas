@@ -1,4 +1,4 @@
-import type { Country, PairData, ProductRef } from "./types";
+import type { Country, PairData } from "./types";
 import { fmtUSD } from "./format";
 import Timeseries from "./Timeseries";
 import { IconSwap, IconClose } from "./icons";
@@ -118,14 +118,8 @@ export default function PairPanel({
             ■ exports {nameB} → {nameA}
           </span>
         </div>
-        <ProductList
-          title={`Top ${nameA} exports to ${nameB}`}
-          products={data.goods.from_to_products}
-        />
-        <ProductList
-          title={`Top ${nameB} exports to ${nameA}`}
-          products={data.goods.to_from_products}
-        />
+        <p className="hint">Top products for each direction sit in the “Top
+          imports &amp; exports” card on the right.</p>
       </section>
 
       {/* ---------- direct services ---------- */}
@@ -299,25 +293,3 @@ function IntermediaryBars({
   );
 }
 
-function ProductList({
-  title,
-  products,
-}: {
-  title: string;
-  products: ProductRef[];
-}) {
-  if (!products || products.length === 0) return null;
-  return (
-    <details className="products">
-      <summary>{title}</summary>
-      <ul>
-        {products.map((p) => (
-          <li key={p.hs6}>
-            <span className="desc">{p.description ?? `HS ${p.hs6}`}</span>
-            <span className="val">{fmtUSD(p.value_musd)}</span>
-          </li>
-        ))}
-      </ul>
-    </details>
-  );
-}

@@ -154,6 +154,21 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(tp!.textContent).toContain("Germany");
       expect(tp!.textContent).toContain("$49B");
     });
+
+    // top imports & exports: what each side sells the other
+    await waitFor(() => {
+      const pr = document.querySelector(".pr-card");
+      expect(pr).not.toBeNull();
+      expect(pr!.textContent).toContain("Top imports & exports");
+      expect(pr!.textContent).toContain(
+        "Lithuania's exports · India's imports",
+      );
+      expect(pr!.textContent).toContain(
+        "India's exports · Lithuania's imports",
+      );
+      expect(pr!.textContent).toContain("Beer: made from malt");
+      expect(pr!.textContent).toContain("$10.0M");
+    });
   });
 
   it("ignores clicking a country that is already selected", async () => {

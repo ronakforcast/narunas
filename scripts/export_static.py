@@ -31,7 +31,7 @@ DB = ROOT / "data" / "trade.db"
 OUT = ROOT / "web" / "public" / "data"
 
 INDIRECT_YEAR = 2024
-N_PRODUCTS = 6
+N_PRODUCTS = 10
 N_INDIRECT = 10
 N_INDIRECT_PRODUCTS = 3
 
