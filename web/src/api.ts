@@ -139,6 +139,46 @@ export async function fetchPair(fr: string, to: string): Promise<PairData> {
 }
 
 // ---------------------------------------------------------------------------
+// Top trade partners — computed from the same per-country file (no new data)
+// ---------------------------------------------------------------------------
+
+export interface TopPartner {
+  iso3: string;
+  exports_musd: number; // country -> partner
+  imports_musd: number; // partner -> country
+  total_musd: number;
+  rank: number;
+}
+
+/** A country's goods trade partners, ranked by exports + imports (latest year). */
+export async function fetchTopPartners(iso: string): Promise<TopPartner[]> {
+  const doc = await loadCountryFile(iso);
+  const year = countriesDoc?.latest_goods_year ?? 2024;
+  const list: TopPartner[] = [];
+  for (const [partner, p] of Object.entries(doc)) {
+    const g = (p as Record<string, any>)?.g;
+    if (!g?.y?.length) continue;
+    let idx = g.y.lastIndexOf(year);
+    if (idx < 0) idx = g.y.length - 1;
+    const ex = g.ft?.[idx] ?? 0;
+    const im = g.tf?.[idx] ?? 0;
+    if (ex + im <= 0) continue;
+    list.push({
+      iso3: partner,
+      exports_musd: ex,
+      imports_musd: im,
+      total_musd: ex + im,
+      rank: 0,
+    });
+  }
+  list.sort((a, b) => b.total_musd - a.total_musd);
+  list.forEach((x, i) => {
+    x.rank = i + 1;
+  });
+  return list;
+}
+
+// ---------------------------------------------------------------------------
 // Monthly freshness — direct browser calls to Eurostat Comext (CORS: *)
 // ---------------------------------------------------------------------------
 

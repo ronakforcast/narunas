@@ -1093,6 +1093,115 @@ details.products .val {
   }
 }
 
+/* ---------- top trade partners ---------- */
+.tp-card {
+  padding-bottom: 14px;
+}
+
+.tp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.tp-col h4 {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 400;
+  padding: 0 2px 7px;
+  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.3px;
+}
+
+.tp-col.a h4 {
+  color: var(--accent);
+}
+
+.tp-col.b h4 {
+  color: var(--accent-2);
+}
+
+.tp-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.tp-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 6px 4px 4px;
+  font-size: 12.5px;
+  cursor: default;
+}
+
+.tp-list li:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.tp-list li:hover {
+  background: #333;
+}
+
+.tp-rank {
+  width: 17px;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tp-flag {
+  width: 18px;
+  flex: none;
+}
+
+.tp-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.tp-total {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tp-list li.tp-hit {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: rgba(0, 242, 255, 0.07);
+}
+
+.tp-col.b .tp-list li.tp-hit {
+  box-shadow: inset 2px 0 0 var(--accent-2);
+  background: rgba(255, 0, 255, 0.07);
+}
+
+.tp-foot {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 0 2px;
+}
+
+.tp-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+@media (max-width: 720px) {
+  .tp-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
 /* ---------- monthly freshness card ---------- */
 .monthly .monthly-grid {
   display: grid;

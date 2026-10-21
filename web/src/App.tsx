@@ -7,6 +7,7 @@ import { fmtUSD } from "./format";
 import { IconSwap, IconClose, IconArrowRight } from "./icons";
 import MonthlyCard from "./MonthlyCard";
 import BalanceBanner from "./BalanceBanner";
+import TopPartners from "./TopPartners";
 import type { Country, PairData, MonthlyData } from "./types";
 
 export default function App() {
@@ -308,6 +309,15 @@ export default function App() {
                 />
               </div>
               <SummaryCards pairData={pairData} names={names} />
+              <TopPartners
+                isoA={pairData.from}
+                isoB={pairData.to}
+                nameA={names.get(pairData.from) ?? pairData.from}
+                nameB={names.get(pairData.to) ?? pairData.to}
+                names={names}
+                flags={flags}
+                year={pairData.indirect.year}
+              />
               {monthly && (
                 <MonthlyCard
                   data={monthly}

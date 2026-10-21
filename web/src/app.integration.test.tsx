@@ -36,6 +36,19 @@ const ltuFile = {
   },
 };
 
+// compact static file for India: several partners so the ranking has content
+const indFile = {
+  LTU: {
+    g: { y: [2023, 2024], ft: [230, 243.4], tf: [140, 148.7], fp: [], tp: [] },
+  },
+  RUS: {
+    g: { y: [2023, 2024], ft: [30000, 38000], tf: [9000, 11000], fp: [], tp: [] },
+  },
+  DEU: {
+    g: { y: [2023, 2024], ft: [8000, 8500], tf: [12000, 13000], fp: [], tp: [] },
+  },
+};
+
 // SDMX-JSON like Eurostat returns
 const sdmx = {
   dimension: { time: { category: { index: { "2026-07": 0, "2026-08": 1 } } } },
@@ -58,6 +71,12 @@ describe("App integration: static data flow (Lithuania and India)", () => {
         if (url.includes("data/pairs/LTU.json.gz")) {
           return new Response(
             gzipSync(Buffer.from(JSON.stringify(ltuFile))),
+            { status: 200 },
+          );
+        }
+        if (url.includes("data/pairs/IND.json.gz")) {
+          return new Response(
+            gzipSync(Buffer.from(JSON.stringify(indFile))),
             { status: 200 },
           );
         }
@@ -120,6 +139,20 @@ describe("App integration: static data flow (Lithuania and India)", () => {
     // monthly layer arrives from the (mocked) Eurostat call
     await waitFor(() => {
       expect(document.querySelector(".monthly")).not.toBeNull();
+    });
+
+    // top partners: both countries' rankings from their static files
+    await waitFor(() => {
+      const tp = document.querySelector(".tp-card");
+      expect(tp).not.toBeNull();
+      expect(tp!.textContent).toContain("Top trade partners");
+      // Lithuania's only fixture partner is India -> rank 1, highlighted
+      expect(tp!.textContent).toContain("India");
+      expect(document.querySelector(".tp-col.a li.tp-hit")).not.toBeNull();
+      // India's list ranks Russia and Germany
+      expect(tp!.textContent).toContain("Russia");
+      expect(tp!.textContent).toContain("Germany");
+      expect(tp!.textContent).toContain("$49B");
     });
   });
 
