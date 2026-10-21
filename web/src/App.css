@@ -1631,6 +1631,32 @@ details.products .val {
   }
 }
 
+/* long product names must never push the grid past the card edge */
+.pr-grid,
+.tp-grid {
+  min-width: 0;
+}
+
+.pr-col,
+.tp-col {
+  min-width: 0;
+}
+
+.pr-list,
+.tp-list {
+  min-width: 0;
+}
+
+.pr-list li,
+.tp-list li {
+  min-width: 0;
+}
+
+.pr-desc,
+.tp-name {
+  min-width: 0;
+}
+
 /* stage legend for the arcs */
 .stage-legend {
   position: absolute;
