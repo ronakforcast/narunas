@@ -76,3 +76,13 @@ export function IconZoom(props: P) {
     </svg>
   );
 }
+
+export function IconDownload(props: P) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3v12" />
+      <path d="M7 11l5 5 5-5" />
+      <path d="M4 19h16" />
+    </svg>
+  );
+}

@@ -243,6 +243,7 @@ export default function App() {
                 nameB={names.get(pairData.to) ?? pairData.to}
                 flagA={flagOf(pairData.from)}
                 flagB={flagOf(pairData.to)}
+                monthly={monthly}
               />
               <PairPanel
                 data={pairData}

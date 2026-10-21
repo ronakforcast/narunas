@@ -168,6 +168,14 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       );
       expect(pr!.textContent).toContain("Beer: made from malt");
       expect(pr!.textContent).toContain("$10.0M");
+      // direct + indirect subsections and the csv export button
+      const subs = document.querySelectorAll(".pr-sub");
+      expect(subs.length).toBe(2);
+      expect(subs[0].textContent).toContain("direct");
+      expect(subs[1].textContent).toContain("indirect");
+      expect(document.querySelector(".csv-btn")).not.toBeNull();
+      // indirect subsection aggregates the fixture intermediary product
+      expect(pr!.textContent).toContain("HS 3004");
     });
   });
 
