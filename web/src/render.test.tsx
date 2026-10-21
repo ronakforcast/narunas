@@ -163,7 +163,7 @@ describe("MonthlyCard rendering", () => {
     );
     expect(html).toContain("Recent months");
     expect(html).toContain("2026 so far");
-    expect(html).toContain("monthly-bars");
+    expect(html).toContain("monthly-line");
     expect(norm(html)).toContain("Lithuania → Russia");
   });
 

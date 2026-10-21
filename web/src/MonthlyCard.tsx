@@ -68,7 +68,9 @@ function MonthlyLine({
           <title>{`${points[i].period}: ${fmtEUR(points[i].value_meur)}`}</title>
         </circle>
       ))}
-      {[0, Math.floor(points.length / 2), points.length - 1].map((i) => (
+      {[
+        ...new Set([0, Math.floor(points.length / 2), points.length - 1]),
+      ].map((i) => (
         <text
           key={i}
           x={i * step + step / 2}
