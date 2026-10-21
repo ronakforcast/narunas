@@ -1,6 +1,9 @@
 import type { MonthlyData, PairData, ProductRef } from "./types";
 import { fmtUSD } from "./format";
 import { IconDownload } from "./icons";
+import hs4NamesJson from "./assets/hs4-names.json";
+
+const HS4_NAMES = hs4NamesJson as unknown as Record<string, string>;
 
 function DirectionBlock({
   flagFrom,
@@ -94,10 +97,12 @@ function IndirectBlock({
       ) : (
         <ol className="pr-list">
           {products.map((p, i) => (
-            <li key={p.hs4} title={`HS ${p.hs4}`}>
+            <li key={p.hs4} title={`${hs4Name.get(p.hs4) ?? HS4_NAMES[p.hs4] ?? ""} (HS ${p.hs4})`}>
               <span className="pr-rank">{i + 1}</span>
               <span className="pr-desc">
-                {hs4Name.get(p.hs4) ?? `HS ${p.hs4}`}
+                {hs4Name.get(p.hs4) ??
+                  HS4_NAMES[p.hs4] ??
+                  `HS ${p.hs4}`}
               </span>
               <span className="pr-val">{fmtUSD(p.value_musd)}</span>
             </li>
@@ -113,6 +118,7 @@ function buildCsv(
   pairData: PairData,
   monthly: MonthlyData | null,
   nameOf: (iso: string) => string,
+  hs4Name: Map<string, string>,
 ): string {
   const A = pairData.from;
   const B = pairData.to;
@@ -160,12 +166,16 @@ function buildCsv(
   L.push("");
 
   L.push("indirect top products aggregated across intermediaries (estimates, USD millions)");
-  L.push("direction,rank,hs4,value_musd");
+  L.push("direction,rank,hs4,name,value_musd");
   aggIndirect(pairData.indirect.from_to).forEach((p, i) =>
-    L.push(`${A}->...->${B},${i + 1},${p.hs4},${p.value_musd}`),
+    L.push(
+      `${A}->...->${B},${i + 1},${p.hs4},${esc(HS4_NAMES[p.hs4] ?? hs4Name.get(p.hs4) ?? "")},${p.value_musd}`,
+    ),
   );
   aggIndirect(pairData.indirect.to_from).forEach((p, i) =>
-    L.push(`${B}->...->${A},${i + 1},${p.hs4},${p.value_musd}`),
+    L.push(
+      `${B}->...->${A},${i + 1},${p.hs4},${esc(HS4_NAMES[p.hs4] ?? hs4Name.get(p.hs4) ?? "")},${p.value_musd}`,
+    ),
   );
   L.push("");
 
@@ -235,7 +245,7 @@ export default function TopProducts({
 
   function downloadCsv() {
     try {
-      const csv = buildCsv(pairData, monthly, nameOf);
+      const csv = buildCsv(pairData, monthly, nameOf, hs4Name);
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

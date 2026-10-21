@@ -175,7 +175,7 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(subs[1].textContent).toContain("indirect");
       expect(document.querySelector(".csv-btn")).not.toBeNull();
       // indirect subsection aggregates the fixture intermediary product
-      expect(pr!.textContent).toContain("HS 3004");
+      expect(pr!.textContent).toContain("Medicaments");
     });
   });
 

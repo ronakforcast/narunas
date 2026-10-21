@@ -2,6 +2,9 @@ import type { Country, PairData } from "./types";
 import { fmtUSD } from "./format";
 import Timeseries from "./Timeseries";
 import { IconSwap, IconClose } from "./icons";
+import hs4NamesJson from "./assets/hs4-names.json";
+
+const HS4_NAMES = hs4NamesJson as unknown as Record<string, string>;
 
 const COLOR_A = "#ff8c00"; // amber — country A
 const COLOR_B = "#00e5ff"; // ice cyan — country B
@@ -282,7 +285,11 @@ function IntermediaryBars({
           <span className="im-val2">{fmtUSD(im.estimate_musd)}</span>
           <div className="im-products">
             {im.top_products.slice(0, 3).map((p) => (
-              <span key={p.hs4} className="chip" title={`HS ${p.hs4}`}>
+              <span
+                key={p.hs4}
+                className="chip"
+                title={`${HS4_NAMES[p.hs4] ?? ""} (HS ${p.hs4})`}
+              >
                 HS {p.hs4} · {fmtUSD(p.value_musd)}
               </span>
             ))}
