@@ -199,10 +199,6 @@ export default function App() {
                   flags={flags}
                   year={pairData.indirect.year}
                 />
-                <NewsCard
-                  nameA={names.get(pairData.from) ?? pairData.from}
-                  nameB={names.get(pairData.to) ?? pairData.to}
-                />
               </>
             ) : null}
           </aside>
@@ -239,9 +235,13 @@ export default function App() {
             )}
           </section>
 
-          {/* ---- right rail: the deep detail ---- */}
+          {/* ---- right rail: trade news on top, then the deep detail ---- */}
           {pairData && (
             <aside className="rail">
+              <NewsCard
+                nameA={names.get(pairData.from) ?? pairData.from}
+                nameB={names.get(pairData.to) ?? pairData.to}
+              />
               <PairPanel
                 data={pairData}
                 countries={countries}
