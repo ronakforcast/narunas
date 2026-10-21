@@ -515,7 +515,9 @@ svg.map:active {
 
 /* horizontal scroll container so the wide flow chart stays readable on phones */
 .flow-scroll {
-  flex: 1;
+  /* grow when there is room, never collapse: hero scrolls instead */
+  flex: 1 0 auto;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
