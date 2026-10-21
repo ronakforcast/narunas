@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import WorldMap from "./WorldMap";
 import FlowChart from "./FlowChart";
 import PairPanel from "./PairPanel";
@@ -8,6 +8,7 @@ import { IconSwap, IconClose, IconArrowRight } from "./icons";
 import MonthlyCard from "./MonthlyCard";
 import BalanceBanner from "./BalanceBanner";
 import TopPartners from "./TopPartners";
+import CountrySlot from "./CountrySlot";
 import type { Country, PairData, MonthlyData } from "./types";
 
 export default function App() {
@@ -18,10 +19,7 @@ export default function App() {
   const [monthly, setMonthly] = useState<MonthlyData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  const [hi, setHi] = useState(0);
   const [dir, setDir] = useState<"ab" | "ba">("ab");
-  const searchRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     fetchCountries()
@@ -121,26 +119,10 @@ export default function App() {
     setError(null);
   }
 
-  const matches = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (q.length < 1) return [];
-    return countries
-      .filter((c) => c.name.toLowerCase().includes(q) || c.iso3.toLowerCase() === q)
-      .slice(0, 8);
-  }, [query, countries]);
-
-  function chooseMatch(i: number) {
-    const m = matches[i];
-    if (!m) return;
-    pick(m.iso3);
-    setQuery("");
-    searchRef.current?.blur();
-  }
-
   const status = error
     ? `⚠ ${error}`
     : !selA
-      ? "Click a country on the map to pick A, or search by name"
+      ? "Pick country A on the map, or type its name in the A slot"
       : !selB
         ? `${names.get(selA)} is A. Now pick B.`
         : loading
@@ -156,92 +138,36 @@ export default function App() {
           </h1>
           <h2>what two countries really trade, and through whom</h2>
         </div>
-        <div className="search">
-          <input
-            ref={searchRef}
-            value={query}
-            placeholder="Search country by name"
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setHi(0);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowDown") {
-                e.preventDefault();
-                setHi((h) => Math.min(h + 1, matches.length - 1));
-              } else if (e.key === "ArrowUp") {
-                e.preventDefault();
-                setHi((h) => Math.max(h - 1, 0));
-              } else if (e.key === "Enter") {
-                e.preventDefault();
-                chooseMatch(hi);
-              } else if (e.key === "Escape") {
-                setQuery("");
-              }
-            }}
-          />
-          {matches.length > 0 && (
-            <ul className="results">
-              {matches.map((c, i) => (
-                <li
-                  key={c.iso3}
-                  className={i === hi ? "hi" : undefined}
-                  onMouseEnter={() => setHi(i)}
-                  onClick={() => chooseMatch(i)}
-                >
-                  <span className="c-name">{c.name}</span>
-                  <span className="iso">{c.iso3}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
         <div className="status">{status}</div>
       </header>
 
-      {/* selection chips */}
+      {/* the two country inputs */}
       <div className="chips">
-        <div
-          className={`chip-slot ${selA ? "filled a" : ""}`}
-          onClick={() => searchRef.current?.focus()}
-        >
-          <span className="slot-tag">1 · A</span>
-          <span className="slot-name">{selA ? names.get(selA) : "choose…"}</span>
-          {selA && (
-            <button
-              className="slot-x"
-              aria-label="remove country A"
-              onClick={(e) => {
-                e.stopPropagation();
-                replaceSlot("a", null);
-              }}
-            >
-              <IconClose width={12} height={12} />
-            </button>
-          )}
-        </div>
+        <CountrySlot
+          tag="1 · A"
+          accent="a"
+          placeholder="country A…"
+          countries={countries}
+          selected={
+            selA ? countries.find((c) => c.iso3 === selA) ?? null : null
+          }
+          onPick={(iso) => replaceSlot("a", iso)}
+          onClear={() => replaceSlot("a", null)}
+        />
         <button className="swap-btn" onClick={swap} disabled={!selA || !selB} aria-label="swap countries A and B">
           <IconSwap />
         </button>
-        <div
-          className={`chip-slot ${selB ? "filled b" : ""}`}
-          onClick={() => searchRef.current?.focus()}
-        >
-          <span className="slot-tag">2 · B</span>
-          <span className="slot-name">{selB ? names.get(selB) : "choose…"}</span>
-          {selB && (
-            <button
-              className="slot-x"
-              aria-label="remove country B"
-              onClick={(e) => {
-                e.stopPropagation();
-                replaceSlot("b", null);
-              }}
-            >
-              <IconClose width={12} height={12} />
-            </button>
-          )}
-        </div>
+        <CountrySlot
+          tag="2 · B"
+          accent="b"
+          placeholder="country B…"
+          countries={countries}
+          selected={
+            selB ? countries.find((c) => c.iso3 === selB) ?? null : null
+          }
+          onPick={(iso) => replaceSlot("b", iso)}
+          onClear={() => replaceSlot("b", null)}
+        />
         {(selA || selB) && (
           <button className="reset" onClick={reset}>
             <IconClose width={12} height={12} /> clear all
@@ -339,7 +265,7 @@ export default function App() {
                 <p className="hint">
                   <span className="step">1</span> pick country A ·{" "}
                   <span className="step">2</span> pick country B, on the map or
-                  in the search box.
+                  by typing the name in the slots above.
                 </p>
               </div>
             </div>
