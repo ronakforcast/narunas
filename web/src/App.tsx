@@ -299,12 +299,14 @@ export default function App() {
                   {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
                 </button>
               </div>
-              <FlowChart
-                pairData={pairData}
-                direction={dir}
-                names={names}
-                flags={flags}
-              />
+              <div className="flow-scroll">
+                <FlowChart
+                  pairData={pairData}
+                  direction={dir}
+                  names={names}
+                  flags={flags}
+                />
+              </div>
               <SummaryCards pairData={pairData} names={names} />
               {monthly && (
                 <MonthlyCard

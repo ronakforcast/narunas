@@ -377,6 +377,13 @@ svg.map {
   touch-action: none;
 }
 
+/* phones: one finger scrolls the page over the map, horizontal drags still pan */
+@media (max-width: 720px) {
+  svg.map {
+    touch-action: pan-y;
+  }
+}
+
 svg.map:active {
   cursor: grabbing;
 }
@@ -504,6 +511,15 @@ svg.map:active {
   height: auto;
   flex: 1;
   min-height: 380px;
+}
+
+/* horizontal scroll container so the wide flow chart stays readable on phones */
+.flow-scroll {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .flow-title {
@@ -959,6 +975,121 @@ details.products .val {
     min-width: 0;
     border-right: none;
     border-bottom: 1px solid var(--line-soft);
+  }
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 720px) {
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 14px 8px;
+  }
+  header h1 {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  header h2 {
+    font-size: 11.5px;
+  }
+  .search input {
+    width: 100%;
+  }
+  .status {
+    font-size: 12px;
+  }
+
+  .chips {
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .chip-slot {
+    min-width: 0;
+    flex: 1 1 130px;
+  }
+  .swap-btn {
+    padding: 6px 10px;
+  }
+
+  .flowchart {
+    min-width: 680px;
+  }
+
+  .dir-tabs {
+    padding: 10px 8px 0;
+    flex-wrap: wrap;
+  }
+  .dir-tabs button {
+    padding: 6px 12px;
+    font-size: 12.5px;
+  }
+
+  .balance-banner {
+    margin: 10px 8px 0;
+    padding: 12px 14px 10px;
+  }
+  .balance-verdict {
+    font-size: 16.5px;
+  }
+  .balance-detail {
+    font-size: 11.5px;
+    gap: 6px;
+  }
+  .balance-note {
+    font-size: 10px;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr 1fr;
+    padding: 0;
+  }
+  .scard {
+    padding: 12px 14px;
+  }
+  .sc-row {
+    font-size: 16px;
+  }
+
+  .panel {
+    padding: 12px 12px 24px;
+  }
+  .card {
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .card h3 {
+    font-size: 14px;
+  }
+  .big {
+    font-size: 20px;
+  }
+  .im-row {
+    grid-template-columns: 12px 84px 1fr 52px;
+  }
+  .im-name2 {
+    font-size: 11.5px;
+  }
+  .im-val2 {
+    font-size: 11px;
+  }
+  .monthly-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  header h1 {
+    font-size: 20px;
+  }
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+  .big-nums {
+    gap: 14px;
+  }
+  .im-row {
+    grid-template-columns: 10px 76px 1fr 48px;
   }
 }
 
