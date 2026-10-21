@@ -448,16 +448,13 @@ main {
   padding: 0 16px 26px;
 }
 
-.under .dir-tabs {
-  padding: 2px 0 10px;
-}
-
 /* the sankey sits on a solid navy panel like the reference */
-.under .flow-scroll {
+.flow-scroll {
   background: #0b101d;
   border: 1px solid var(--line);
   border-radius: 2px;
   padding: 10px 12px 6px;
+  margin-bottom: 14px;
 }
 
 /* ---------- map picker ---------- */

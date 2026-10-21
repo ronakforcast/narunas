@@ -234,17 +234,35 @@ export default function App() {
             )}
           </section>
 
-          {/* ---- right rail: products and the deep detail ---- */}
+          {/* ---- right rail: the flow story and the deep detail ---- */}
           {pairData && (
             <aside className="rail">
-              <TopProducts
-                pairData={pairData}
-                nameA={names.get(pairData.from) ?? pairData.from}
-                nameB={names.get(pairData.to) ?? pairData.to}
-                flagA={flagOf(pairData.from)}
-                flagB={flagOf(pairData.to)}
-                monthly={monthly}
-              />
+              <div className="dir-tabs" role="tablist">
+                <button
+                  role="tab"
+                  aria-selected={dir === "ab"}
+                  className={dir === "ab" ? "active a" : ""}
+                  onClick={() => setDir("ab")}
+                >
+                  {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={dir === "ba"}
+                  className={dir === "ba" ? "active b" : ""}
+                  onClick={() => setDir("ba")}
+                >
+                  {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
+                </button>
+              </div>
+              <div className="flow-scroll">
+                <FlowChart
+                  pairData={pairData}
+                  direction={dir}
+                  names={names}
+                  flags={flags}
+                />
+              </div>
               <PairPanel
                 data={pairData}
                 countries={countries}
@@ -255,35 +273,17 @@ export default function App() {
           )}
         </div>
 
-        {/* ---- below: the flow story and the monthly layer ---- */}
+        {/* ---- below: top products and the monthly layer ---- */}
         {pairData && (
           <div className="under">
-            <div className="dir-tabs" role="tablist">
-              <button
-                role="tab"
-                aria-selected={dir === "ab"}
-                className={dir === "ab" ? "active a" : ""}
-                onClick={() => setDir("ab")}
-              >
-                {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
-              </button>
-              <button
-                role="tab"
-                aria-selected={dir === "ba"}
-                className={dir === "ba" ? "active b" : ""}
-                onClick={() => setDir("ba")}
-              >
-                {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
-              </button>
-            </div>
-            <div className="flow-scroll">
-              <FlowChart
-                pairData={pairData}
-                direction={dir}
-                names={names}
-                flags={flags}
-              />
-            </div>
+            <TopProducts
+              pairData={pairData}
+              nameA={names.get(pairData.from) ?? pairData.from}
+              nameB={names.get(pairData.to) ?? pairData.to}
+              flagA={flagOf(pairData.from)}
+              flagB={flagOf(pairData.to)}
+              monthly={monthly}
+            />
             {monthly && (
               <MonthlyCard
                 data={monthly}
