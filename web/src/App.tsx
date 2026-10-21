@@ -176,8 +176,8 @@ export default function App() {
       </header>
 
       <main>
-        {/* ---- left: map picker + detail panel ---- */}
-        <aside className="side">
+        {/* ---- the stage: full-width map + floating verdict ---- */}
+        <section className="stage">
           <WorldMap
             known={known}
             names={names}
@@ -185,21 +185,11 @@ export default function App() {
             selB={selB}
             pairData={pairData}
             onPick={pick}
+            direction={dir}
+            showArcs={!!pairData}
           />
           {pairData && (
-            <PairPanel
-              data={pairData}
-              countries={countries}
-              onReset={reset}
-              onSwap={swap}
-            />
-          )}
-        </aside>
-
-        {/* ---- right: the flow hero ---- */}
-        <section className="hero">
-          {pairData ? (
-            <>
+            <div className="banner-float">
               <BalanceBanner
                 data={pairData}
                 nameA={names.get(pairData.from) ?? pairData.from}
@@ -207,7 +197,16 @@ export default function App() {
                 flagA={flagOf(pairData.from)}
                 flagB={flagOf(pairData.to)}
               />
-              <SummaryCards pairData={pairData} names={names} />
+            </div>
+          )}
+        </section>
+
+        <div className="below">
+          {/* ---- flow hero ---- */}
+          <section className="hero">
+            {pairData ? (
+              <>
+                <SummaryCards pairData={pairData} names={names} />
               <div className="dir-tabs" role="tablist">
                 <button
                   role="tab"
@@ -276,7 +275,20 @@ export default function App() {
               </div>
             </div>
           )}
-        </section>
+          </section>
+
+          {/* ---- detail panel ---- */}
+          {pairData && (
+            <aside className="side">
+              <PairPanel
+                data={pairData}
+                countries={countries}
+                onReset={reset}
+                onSwap={swap}
+              />
+            </aside>
+          )}
+        </div>
       </main>
     </div>
   );

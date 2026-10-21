@@ -17,6 +17,7 @@ import worldTopo from "world-atlas/countries-110m.json";
 import countryIds from "./assets/country-ids.json";
 import type { PairData } from "./types";
 import { IconHome, IconZoom } from "./icons";
+import { arcPath, arcWidth } from "./arcs";
 
 const W = 960;
 const H = 500;
@@ -28,8 +29,10 @@ export interface WorldMapProps {
   selB: string | null;
   pairData: PairData | null;
   onPick: (iso3: string) => void;
-  /** draw trade arcs (disabled in picker mode — the flow chart shows links) */
+  /** draw the trade arcs on the stage when a pair is loaded */
   showArcs?: boolean;
+  /** which direction the arcs follow (matches the hero tabs) */
+  direction?: "ab" | "ba";
 }
 
 interface Feat {
@@ -44,7 +47,7 @@ const COLOR_A = "#ff8c00"; // amber — country A
 const COLOR_B = "#00e5ff"; // ice cyan — country B
 
 export default function WorldMap(props: WorldMapProps) {
-  const { known, names, selA, selB, pairData, onPick, showArcs = false } =
+  const { known, names, selA, selB, pairData, onPick, showArcs = false, direction = "ab" } =
     props;
   const [hover, setHover] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -157,6 +160,86 @@ export default function WorldMap(props: WorldMapProps) {
             );
           })}
 
+          {/* trade arcs on the stage — direct leg plus top intermediaries */}
+          {(() => {
+            if (!showArcs || !pairData) return null;
+            const fwd = direction !== "ba";
+            const fromIso = fwd ? pairData.from : pairData.to;
+            const toIso = fwd ? pairData.to : pairData.from;
+            const aC = cent.get(fromIso);
+            const bC = cent.get(toIso);
+            if (!aC || !bC) return null;
+            const from = proj(aC);
+            const to = proj(bC);
+            const latest = pairData.goods.years.length - 1;
+            const directVal =
+              (fwd
+                ? pairData.goods.from_to[latest]
+                : pairData.goods.to_from[latest]) ?? 0;
+            const ims = (
+              fwd ? pairData.indirect.from_to : pairData.indirect.to_from
+            ).slice(0, 5);
+            const maxVal = Math.max(
+              directVal,
+              ...ims.map((x) => x.estimate_musd),
+              1,
+            );
+            const k = Math.sqrt(t.k);
+            const legs: { d: string; w: number; direct: boolean }[] = [];
+            if (directVal > 0) {
+              legs.push({
+                d: arcPath(from, to, 0.16),
+                w: arcWidth(directVal, maxVal, 1.5, 6),
+                direct: true,
+              });
+            }
+            ims.forEach((im) => {
+              const cC = cent.get(im.intermediary);
+              if (!cC) return;
+              const cp = proj(cC);
+              const w = arcWidth(im.estimate_musd, maxVal, 1, 4.5);
+              legs.push({ d: arcPath(from, cp, 0.3), w, direct: false });
+              legs.push({ d: arcPath(cp, to, -0.28), w, direct: false });
+            });
+            return (
+              <g className="arcs" pointerEvents="none">
+                {legs.map((l, i) => (
+                  <path
+                    key={i}
+                    d={l.d}
+                    fill="none"
+                    className={l.direct ? "trade-arc direct" : "trade-arc via"}
+                    strokeWidth={l.w / k}
+                  />
+                ))}
+                <circle
+                  cx={from.x}
+                  cy={from.y}
+                  r={4 / k}
+                  className="node-dot node-a"
+                />
+                <circle
+                  cx={to.x}
+                  cy={to.y}
+                  r={4 / k}
+                  className="node-dot node-b"
+                />
+                <circle
+                  cx={from.x}
+                  cy={from.y}
+                  r={4 / k}
+                  className="node-pulse pulse-a"
+                />
+                <circle
+                  cx={to.x}
+                  cy={to.y}
+                  r={4 / k}
+                  className="node-pulse pulse-b"
+                />
+              </g>
+            );
+          })()}
+
           {/* numbered badges for A and B — counter-scaled to stay readable */}
           {selA && cent.get(selA) && (
             <Badge p={proj(cent.get(selA)!)} n={1} color={COLOR_A} k={t.k} />
@@ -184,7 +267,16 @@ export default function WorldMap(props: WorldMapProps) {
           click a country
         </span>
       </div>
-      {showArcs && null /* arcs removed — the flow chart shows the links */}
+      {showArcs && (
+        <div className="stage-legend">
+          <span className="lg">
+            <i className="sw sw-direct" /> direct trade
+          </span>
+          <span className="lg">
+            <i className="sw sw-via" /> via intermediaries (est.)
+          </span>
+        </div>
+      )}
     </div>
   );
 }
