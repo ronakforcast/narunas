@@ -1824,15 +1824,21 @@ body {
   font-family: var(--font-serif);
 }
 
-.monthly-bars {
+.monthly-line {
   width: 100%;
   height: auto;
 }
 
-.monthly-bars .tick {
+.monthly-line .baseline {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 4;
+}
+
+.monthly-line .tick {
   fill: var(--muted);
   font-size: 8.5px;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
 }
 
 @media (min-width: 900px) {

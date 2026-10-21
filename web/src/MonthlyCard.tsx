@@ -17,37 +17,61 @@ function lastMonth(points: MonthlyPoint[]): string {
   return points.length ? points[points.length - 1].period : "";
 }
 
-function MonthlyBars({
+function MonthlyLine({
   points,
   color,
+  id,
 }: {
   points: MonthlyPoint[];
   color: string;
+  id: string;
 }) {
   if (points.length === 0) return null;
   const W = 420;
   const H = 64;
   const max = Math.max(...points.map((p) => p.value_meur), 0.001);
-  const bw = W / points.length;
+  const step = W / points.length;
+  const pts = points.map((p, i) => ({
+    x: i * step + step / 2,
+    y: H - (p.value_meur / max) * H,
+  }));
+  const line =
+    "M " +
+    pts.map((p) => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(" L ");
+  const area = `${line} L ${pts[pts.length - 1].x.toFixed(1)} ${H} L ${pts[0].x.toFixed(1)} ${H} Z`;
   return (
-    <svg viewBox={`0 0 ${W} ${H + 14}`} className="monthly-bars">
-      {points.map((p, i) => (
-        <rect
-          key={p.period}
-          x={i * bw + 0.5}
-          y={H - (p.value_meur / max) * H}
-          width={Math.max(bw - 1, 0.8)}
-          height={Math.max((p.value_meur / max) * H, 0.6)}
+    <svg viewBox={`0 0 ${W} ${H + 14}`} className="monthly-line">
+      <defs>
+        <linearGradient id={`mfill-${id}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <line x1="0" y1={H} x2={W} y2={H} className="baseline" />
+      <path d={area} fill={`url(#mfill-${id})`} />
+      <path
+        d={line}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      {pts.map((p, i) => (
+        <circle
+          key={points[i].period}
+          cx={p.x}
+          cy={p.y}
+          r={2.2}
           fill={color}
-          opacity={0.85}
         >
-          <title>{`${p.period}: ${fmtEUR(p.value_meur)}`}</title>
-        </rect>
+          <title>{`${points[i].period}: ${fmtEUR(points[i].value_meur)}`}</title>
+        </circle>
       ))}
       {[0, Math.floor(points.length / 2), points.length - 1].map((i) => (
         <text
           key={i}
-          x={i * bw + bw / 2}
+          x={i * step + step / 2}
           y={H + 11}
           textAnchor="middle"
           className="tick"
@@ -97,7 +121,7 @@ export default function MonthlyCard({
               {ytdA.total > 0 ? `${ytdA.year} so far: ${fmtEUR(ytdA.total)}` : "no data"}
             </span>
           </div>
-          <MonthlyBars points={ab} color={COLOR_A} />
+          <MonthlyLine points={ab} color={COLOR_A} id="a" />
         </div>
         <div className="monthly-col">
           <div className="monthly-head">
@@ -108,7 +132,7 @@ export default function MonthlyCard({
               {ytdB.total > 0 ? `${ytdB.year} so far: ${fmtEUR(ytdB.total)}` : "no data"}
             </span>
           </div>
-          <MonthlyBars points={ba} color={COLOR_B} />
+          <MonthlyLine points={ba} color={COLOR_B} id="b" />
         </div>
       </div>
     </section>
