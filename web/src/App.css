@@ -425,6 +425,7 @@ main {
 svg.map {
   width: 100%;
   height: auto;
+  max-height: 62vh;
   display: block;
   cursor: grab;
   touch-action: none;
@@ -434,6 +435,7 @@ svg.map {
 @media (max-width: 720px) {
   svg.map {
     touch-action: pan-y;
+    max-height: 46vh;
   }
 }
 
@@ -1573,16 +1575,14 @@ details.products .val {
 
 .trade-arc.direct {
   stroke: var(--accent);
-  stroke-dasharray: 10 7;
-  animation: arcflow 1.4s linear infinite;
   filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.55));
 }
 
 .trade-arc.via {
   stroke: #4fc3f7;
-  opacity: 0.6;
-  stroke-dasharray: 4 6;
-  animation: arcflow 2.2s linear infinite;
+  opacity: 0.5;
+  stroke-dasharray: 2 5;
+  animation: arcflow 2.4s linear infinite;
 }
 
 @keyframes arcflow {
@@ -1672,6 +1672,11 @@ details.products .val {
 }
 
 /* thin technical scrollbars */
+html,
+body {
+  overflow-x: hidden;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
