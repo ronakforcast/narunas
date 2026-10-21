@@ -80,19 +80,24 @@ export default function WorldMap(props: WorldMapProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const zbRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const dragRef = useRef<{ x: number; y: number; moved: number } | null>(null);
+  const lastMovedRef = useRef(0);
   const [t, setT] = useState<ZoomTransform>(zoomIdentity);
 
-  // wheel zooms; dragging rotates the globe instead
+  // ctrl/cmd + wheel zooms; plain wheel scrolls the page through the globe
   useEffect(() => {
     const svg = select(svgRef.current!);
     const zb = d3zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, 8])
-      .filter((event: any) => event.type === "wheel")
+      .filter(
+        (event: any) =>
+          event.type === "wheel" && (event.ctrlKey || event.metaKey),
+      )
       .on("zoom", (e) => {
         setT(e.transform);
       });
     zbRef.current = zb;
     svg.call(zb as never);
+    svg.on("dblclick.zoom", null); // double-click picks, it must not zoom
     return () => {
       svg.on(".zoom", null);
     };
@@ -221,7 +226,12 @@ export default function WorldMap(props: WorldMapProps) {
   }, [showArcs, pairData, direction, cent, projection]);
 
   const k = Math.sqrt(t.k);
-  const dragMoved = () => (dragRef.current?.moved ?? 0) > 6;
+  const dragMoved = () => lastMovedRef.current > 6;
+
+  function endDrag() {
+    if (dragRef.current) lastMovedRef.current = dragRef.current.moved;
+    dragRef.current = null;
+  }
 
   return (
     <div className="map-wrap">
@@ -235,10 +245,11 @@ export default function WorldMap(props: WorldMapProps) {
             y: e.clientY,
             moved: 0,
           };
+          lastMovedRef.current = 0;
         }}
         onPointerMove={(e) => {
           const d = dragRef.current;
-          if (!d) return;
+          if (!d || e.buttons === 0) return;
           const dx = e.clientX - d.x;
           const dy = e.clientY - d.y;
           d.moved += Math.abs(dx) + Math.abs(dy);
@@ -251,12 +262,9 @@ export default function WorldMap(props: WorldMapProps) {
             ]);
           }
         }}
-        onPointerUp={() => {
-          /* keep moved for the click check */
-        }}
-        onPointerLeave={() => {
-          dragRef.current = null;
-        }}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={endDrag}
       >
         <defs>
           <radialGradient id="globe-shade" cx="36%" cy="30%" r="85%">
@@ -364,8 +372,8 @@ export default function WorldMap(props: WorldMapProps) {
           {hover ? names.get(hover) ?? hover : ""}
         </span>
         <span className="lg zoom">
-          <IconZoom width={12} height={12} /> drag to rotate · scroll to zoom ·
-          click a country
+          <IconZoom width={12} height={12} /> drag to rotate · ctrl + scroll to
+          zoom · click a country
         </span>
       </div>
       {showArcs && (
