@@ -123,9 +123,9 @@ button,
 /* ---------- header (peoplemov wordmark style) ---------- */
 header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 22px;
-  padding: 14px 18px 10px;
+  padding: 14px 18px 12px;
   background: var(--bg);
   border-bottom: 1px solid var(--line-soft);
   flex-wrap: wrap;
@@ -215,14 +215,12 @@ header h2 {
   font-size: 13px;
 }
 
-/* ---------- selection chips ---------- */
+/* ---------- selection chips (in the header row) ---------- */
 .chips {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 18px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--line-soft);
+  margin-left: auto;
   flex-wrap: wrap;
 }
 
@@ -1013,6 +1011,12 @@ details.products .val {
   .chips {
     padding: 8px 14px;
     gap: 8px;
+  }
+  .chips {
+    padding: 0;
+    gap: 8px;
+    margin-left: 0;
+    width: 100%;
   }
   .chip-slot {
     min-width: 0;

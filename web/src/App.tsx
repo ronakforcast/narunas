@@ -138,43 +138,41 @@ export default function App() {
           </h1>
           <h2>what two countries really trade, and through whom</h2>
         </div>
+        <div className="chips">
+          <CountrySlot
+            tag="1 · A"
+            accent="a"
+            placeholder="country A…"
+            countries={countries}
+            selected={
+              selA ? countries.find((c) => c.iso3 === selA) ?? null : null
+            }
+            onPick={(iso) => replaceSlot("a", iso)}
+            onClear={() => replaceSlot("a", null)}
+          />
+          <button className="swap-btn" onClick={swap} disabled={!selA || !selB} aria-label="swap countries A and B">
+            <IconSwap />
+          </button>
+          <CountrySlot
+            tag="2 · B"
+            accent="b"
+            placeholder="country B…"
+            countries={countries}
+            selected={
+              selB ? countries.find((c) => c.iso3 === selB) ?? null : null
+            }
+            onPick={(iso) => replaceSlot("b", iso)}
+            onClear={() => replaceSlot("b", null)}
+          />
+          {(selA || selB) && (
+            <button className="reset" onClick={reset}>
+              <IconClose width={12} height={12} /> clear all
+            </button>
+          )}
+          {loading && <span className="loading">loading…</span>}
+        </div>
         <div className="status">{status}</div>
       </header>
-
-      {/* the two country inputs */}
-      <div className="chips">
-        <CountrySlot
-          tag="1 · A"
-          accent="a"
-          placeholder="country A…"
-          countries={countries}
-          selected={
-            selA ? countries.find((c) => c.iso3 === selA) ?? null : null
-          }
-          onPick={(iso) => replaceSlot("a", iso)}
-          onClear={() => replaceSlot("a", null)}
-        />
-        <button className="swap-btn" onClick={swap} disabled={!selA || !selB} aria-label="swap countries A and B">
-          <IconSwap />
-        </button>
-        <CountrySlot
-          tag="2 · B"
-          accent="b"
-          placeholder="country B…"
-          countries={countries}
-          selected={
-            selB ? countries.find((c) => c.iso3 === selB) ?? null : null
-          }
-          onPick={(iso) => replaceSlot("b", iso)}
-          onClear={() => replaceSlot("b", null)}
-        />
-        {(selA || selB) && (
-          <button className="reset" onClick={reset}>
-            <IconClose width={12} height={12} /> clear all
-          </button>
-        )}
-        {loading && <span className="loading">loading…</span>}
-      </div>
 
       <main>
         {/* ---- left: map picker + detail panel ---- */}
