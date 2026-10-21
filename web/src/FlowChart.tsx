@@ -257,7 +257,7 @@ export default function FlowChart({
                   className="flow-node-value hero"
                   fill={COLOR_B}
                 >
-                  ← {fmtUSD(indirectTotal)} via intermediaries (est.)
+                  ← {fmtUSD(indirectTotal)} via others (est.)
                 </text>
               </>
             )}
