@@ -452,6 +452,14 @@ main {
   padding: 2px 0 10px;
 }
 
+/* the sankey sits on a solid navy panel like the reference */
+.under .flow-scroll {
+  background: #0b101d;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 10px 12px 6px;
+}
+
 /* ---------- map picker ---------- */
 .map-wrap {
   position: relative;
@@ -634,21 +642,20 @@ svg.map:active {
 }
 
 .flow-node-label {
-  font-size: 11.5px;
-  font-weight: 400;
+  font-size: 12.5px;
+  font-weight: 700;
   fill: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .flow-node-label.hero {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 15px;
 }
 
 .flow-node-value {
-  font-size: 10.5px;
-  fill: var(--muted);
-  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: #a8b3c2;
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
 }
 

@@ -17,18 +17,18 @@ export interface FlowChartProps {
   flags: Map<string, string>; // iso3 -> iso2 (for flag emoji)
 }
 
-const COLOR_A = "#ff8c00"; // amber — country A / direct A→B
-const COLOR_B = "#00e5ff"; // ice cyan — country B
-// glacier ramp per intermediary — cool blues flowing toward B's cyan
+const COLOR_A = "#d9ad38"; // warm gold — country A / direct A→B
+const COLOR_B = "#cfd8e3"; // pale silver — country B, the sink
+// categorical accents per intermediary (VastlyFi-style palette)
 const IM_COLORS = [
-  "#6b7fd7",
-  "#5f92e0",
-  "#55aee6",
-  "#4fc3f7",
-  "#49cfe0",
-  "#5ad6bd",
-  "#7eddc2",
-  "#a8e3cd",
+  "#10c981", // mint emerald
+  "#2b528a", // steel blue
+  "#995b2a", // bronze copper
+  "#d858a3", // pink magenta
+  "#805ad5", // purple violet
+  "#b78b28", // ochre amber
+  "#10b981", // teal seafoam
+  "#4c79ae", // steel blue light
 ];
 const imColor = (i: number) => IM_COLORS[i % IM_COLORS.length];
 
@@ -110,8 +110,8 @@ export default function FlowChart({
 
     const sk = sankey<Nodal, Linkal>()
       .nodeId((d) => d.id)
-      .nodeWidth(12)
-      .nodePadding(14)
+      .nodeWidth(14)
+      .nodePadding(16)
       .extent([
         [MARGIN.left, MARGIN.top],
         [W - MARGIN.right, H - MARGIN.bottom],
@@ -175,8 +175,8 @@ export default function FlowChart({
           const t = l.target as SankeyNode<Nodal, Linkal>;
           const c1 = colorOfNode(s.id);
           const c2 = colorOfNode(t.id);
-          // blend only near the junction — full-length blends turn muddy
-          const blend = l.kind === "direct" ? 100 : 16;
+          // blend from the source gold into each target's accent colour
+          const blend = l.kind === "direct" ? 100 : 40;
           return (
             <linearGradient
               key={`g-${i}`}
@@ -198,8 +198,8 @@ export default function FlowChart({
         How {nameOf(from)}'s goods reach {nameOf(to)}
       </text>
       <text x={W / 2} y={44} textAnchor="middle" className="flow-sub">
-        {pairData.indirect.year} · wider ribbon, more money · the amber band is
-        direct trade
+        {pairData.indirect.year} · wider ribbon, more money · the gold band
+        is direct trade
       </text>
 
       {/* ribbons — filled bands, gradient from source colour to target */}
@@ -251,7 +251,7 @@ export default function FlowChart({
               y={node.y0}
               width={node.x1 - node.x0}
               height={Math.max(node.y1 - node.y0, 2)}
-              rx={2}
+              rx={7}
               fill={color}
               opacity={isA || isB ? 1 : 0.9}
               stroke="#0a0e17"
