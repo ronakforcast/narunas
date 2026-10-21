@@ -83,6 +83,27 @@ describe("App integration: static data flow (Lithuania and India)", () => {
         if (url.includes("eurostat")) {
           return new Response(JSON.stringify(sdmx), { status: 200 });
         }
+        if (url.includes("gdeltproject")) {
+          return new Response(
+            JSON.stringify({
+              articles: [
+                {
+                  title: "Lithuania and India sign new trade deal",
+                  url: "https://example.com/1",
+                  domain: "example.com",
+                  seendate: "20261018T000000Z",
+                },
+                {
+                  title: "India exports rise sharply",
+                  url: "https://example.com/2",
+                  domain: "example.com",
+                  seendate: "20261017T000000Z",
+                },
+              ],
+            }),
+            { status: 200 },
+          );
+        }
         return new Response("{}", { status: 404 });
       }),
     );
@@ -127,6 +148,15 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(title!.textContent).toContain("India");
     });
 
+    // involved country names are labeled on the globe
+    await waitFor(() => {
+      const map = document.querySelector("svg.map");
+      expect(map).not.toBeNull();
+      expect(map!.textContent).toContain("Lithuania");
+      expect(map!.textContent).toContain("India");
+      expect(map!.textContent).toContain("Germany");
+    });
+
     await waitFor(() => {
       expect(document.querySelectorAll(".flow-link").length).toBeGreaterThanOrEqual(2);
     });
@@ -134,6 +164,17 @@ describe("App integration: static data flow (Lithuania and India)", () => {
     // summary shows indirect total from compact data: 1310.1 -> $1.3B
     await waitFor(() => {
       expect(document.querySelectorAll(".sc-row").length).toBeGreaterThan(0);
+    });
+
+    // trade news card from the (mocked) GDELT media scan
+    await waitFor(() => {
+      const news = document.querySelector(".news-card");
+      expect(news).not.toBeNull();
+      expect(news!.textContent).toContain("Trade in the news");
+      expect(news!.textContent).toContain(
+        "Lithuania and India sign new trade deal",
+      );
+      expect(news!.textContent).toContain("Oct 18");
     });
 
     // monthly layer arrives from the (mocked) Eurostat call

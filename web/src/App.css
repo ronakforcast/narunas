@@ -1805,6 +1805,57 @@ details.products .val {
   border-top-color: #4fc3f7;
 }
 
+/* ---------- trade news ---------- */
+.news-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.news-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 6px 7px 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.news-list li:last-child {
+  border-bottom: none;
+}
+
+.news-list li:hover {
+  background: #333;
+}
+
+.news-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.news-title {
+  font-size: 12.5px;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.35;
+  display: block;
+}
+
+.news-title:hover {
+  color: var(--accent-2);
+}
+
+/* country name labels on the globe */
+.map-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  pointer-events: none;
+}
+
 /* thin technical scrollbars */
 html,
 body {

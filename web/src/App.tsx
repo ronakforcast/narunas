@@ -9,6 +9,7 @@ import MonthlyCard from "./MonthlyCard";
 import BalanceBanner from "./BalanceBanner";
 import TopPartners from "./TopPartners";
 import TopProducts from "./TopProducts";
+import NewsCard from "./NewsCard";
 import CountrySlot from "./CountrySlot";
 import type { Country, PairData, MonthlyData } from "./types";
 
@@ -197,6 +198,10 @@ export default function App() {
                   names={names}
                   flags={flags}
                   year={pairData.indirect.year}
+                />
+                <NewsCard
+                  nameA={names.get(pairData.from) ?? pairData.from}
+                  nameB={names.get(pairData.to) ?? pairData.to}
                 />
               </>
             ) : null}

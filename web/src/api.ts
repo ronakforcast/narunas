@@ -179,6 +179,70 @@ export async function fetchTopPartners(iso: string): Promise<TopPartner[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Trade news — GDELT global media scan (free, keyless, CORS: *)
+// ---------------------------------------------------------------------------
+
+export interface NewsArticle {
+  title: string;
+  url: string;
+  domain: string | null;
+  seen: string | null;
+}
+
+const newsCache = new Map<string, NewsArticle[] | null>();
+
+export async function fetchTradeNews(
+  nameA: string,
+  nameB: string,
+): Promise<NewsArticle[] | null> {
+  const key = `${nameA}|${nameB}`;
+  if (newsCache.has(key)) return newsCache.get(key) ?? null;
+  const q = `(${nameA} OR ${nameB}) (trade OR exports OR imports OR tariff OR sanctions)`;
+  const url =
+    "https://api.gdeltproject.org/api/v2/doc/doc?query=" +
+    encodeURIComponent(q) +
+    "&mode=artlist&maxrecords=25&format=json&sort=datedesc";
+  try {
+    let res = await fetch(url);
+    if (res.status === 429) {
+      // GDELT allows one request per ~5 seconds — wait and retry once
+      await new Promise((r) => setTimeout(r, 6500));
+      res = await fetch(url);
+    }
+    if (!res.ok) {
+      newsCache.set(key, null);
+      return null;
+    }
+    const doc = await res.json();
+    const arts: NewsArticle[] = (doc.articles ?? [])
+      .map((a: any) => ({
+        title: a.title,
+        url: a.url,
+        domain: a.domain ?? null,
+        seen: a.seendate ?? null,
+      }))
+      .filter((a: NewsArticle) => a.title && a.url);
+    // keep titles that clearly involve a country or a trade term
+    const la = nameA.toLowerCase();
+    const lb = nameB.toLowerCase();
+    const relevant = arts.filter((a) => {
+      const t = a.title.toLowerCase();
+      return (
+        t.includes(la) ||
+        t.includes(lb) ||
+        /trade|export|import|tariff|sanction|customs/.test(t)
+      );
+    });
+    const out = (relevant.length > 0 ? relevant : arts).slice(0, 6);
+    newsCache.set(key, out);
+    return out;
+  } catch {
+    newsCache.set(key, null);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Monthly freshness — direct browser calls to Eurostat Comext (CORS: *)
 // ---------------------------------------------------------------------------
 
