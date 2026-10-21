@@ -91,6 +91,15 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(document.querySelector(".country.sel-b")).not.toBeNull();
     });
 
+    // balance banner: the verdict up top
+    await waitFor(() => {
+      const banner = document.querySelector(".balance-banner");
+      expect(banner).not.toBeNull();
+      expect(banner!.textContent).toContain("exports more to");
+      expect(banner!.textContent).toContain("India");
+      expect(banner!.textContent).toContain("trade surplus");
+    });
+
     // flow chart rendered from the gzipped static data
     await waitFor(() => {
       const title = document.querySelector(".flow-title");

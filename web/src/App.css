@@ -1007,3 +1007,78 @@ details.products .val {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ---------- balance banner (the verdict) ---------- */
+.balance-banner {
+  margin: 14px 16px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px 20px 12px;
+  background: #0a0a0a;
+}
+
+.balance-banner.export {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.balance-banner.import {
+  border-color: var(--accent-2);
+  box-shadow: inset 3px 0 0 var(--accent-2);
+}
+
+.balance-verdict {
+  font-family: var(--font-serif);
+  font-size: 21px;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+
+.balance-banner.export .balance-verdict {
+  color: var(--accent);
+}
+
+.balance-banner.import .balance-verdict {
+  color: var(--accent-2);
+}
+
+.balance-detail {
+  margin-top: 8px;
+  font-size: 12.5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.bal-out,
+.bal-in {
+  color: var(--text);
+}
+
+.bal-split {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.bal-sep {
+  color: var(--muted);
+}
+
+.bal-diff.pos {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.bal-diff.neg {
+  color: var(--accent-2);
+  font-weight: 600;
+}
+
+.balance-note {
+  margin: 8px 0 0;
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}

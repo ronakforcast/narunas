@@ -6,6 +6,7 @@ import { fetchCountries, fetchPair, fetchMonthly } from "./api";
 import { fmtUSD } from "./format";
 import { IconSwap, IconClose, IconArrowRight } from "./icons";
 import MonthlyCard from "./MonthlyCard";
+import BalanceBanner from "./BalanceBanner";
 import type { Country, PairData, MonthlyData } from "./types";
 
 export default function App() {
@@ -39,6 +40,17 @@ export default function App() {
 
   const iso2Of = (iso: string) =>
     countries.find((c) => c.iso3 === iso)?.iso2 ?? null;
+
+  function flagOf(iso: string): string {
+    const iso2 = flags.get(iso);
+    if (!iso2 || iso2.length !== 2) return "";
+    return String.fromCodePoint(
+      ...iso2
+        .toUpperCase()
+        .split("")
+        .map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+    );
+  }
 
   async function loadPair(a: string, b: string) {
     setLoading(true);
@@ -262,6 +274,13 @@ export default function App() {
         <section className="hero">
           {pairData ? (
             <>
+              <BalanceBanner
+                data={pairData}
+                nameA={names.get(pairData.from) ?? pairData.from}
+                nameB={names.get(pairData.to) ?? pairData.to}
+                flagA={flagOf(pairData.from)}
+                flagB={flagOf(pairData.to)}
+              />
               <div className="dir-tabs" role="tablist">
                 <button
                   role="tab"
