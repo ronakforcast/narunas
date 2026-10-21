@@ -83,6 +83,24 @@ describe("App integration: static data flow (Lithuania and India)", () => {
         if (url.includes("eurostat")) {
           return new Response(JSON.stringify(sdmx), { status: 200 });
         }
+        if (url.includes("proxy.cors.dev")) {
+          return new Response(
+            `<?xml version="1.0" encoding="UTF-8" ?>
+            <rss version="2.0"><channel>
+              <item>
+                <title>Lithuania hopeful India-EU FTA effective during its 2027 presidency</title>
+                <link>https://example.com/fta</link>
+                <pubDate>Thu, 20 Aug 2026 09:31:00 GMT</pubDate>
+              </item>
+              <item>
+                <title>India and Lithuania expand rail trade corridor</title>
+                <link>https://example.com/rail</link>
+                <pubDate>Wed, 19 Aug 2026 17:01:00 GMT</pubDate>
+              </item>
+            </channel></rss>`,
+            { status: 200 },
+          );
+        }
         if (url.includes("gdeltproject")) {
           return new Response(
             JSON.stringify({
@@ -166,15 +184,15 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(document.querySelectorAll(".sc-row").length).toBeGreaterThan(0);
     });
 
-    // trade news card from the (mocked) GDELT media scan
+    // trade news card: Bing News RSS through the cors.dev proxy
     await waitFor(() => {
       const news = document.querySelector(".news-card");
       expect(news).not.toBeNull();
       expect(news!.textContent).toContain("Trade in the news");
       expect(news!.textContent).toContain(
-        "Lithuania and India sign new trade deal",
+        "Lithuania hopeful India-EU FTA effective during its 2027 presidency",
       );
-      expect(news!.textContent).toContain("Oct 18");
+      expect(news!.textContent).toContain("Aug 20");
     });
 
     // monthly layer arrives from the (mocked) Eurostat call

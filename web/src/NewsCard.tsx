@@ -16,12 +16,17 @@ const MONTHS = [
   "Dec",
 ];
 
-/** GDELT timestamps look like 20261020T010000Z. */
+/** GDELT timestamps look like 20261020T010000Z; Bing uses RFC 822. */
 function fmtDate(s: string | null): string {
-  if (!s || s.length < 8) return "";
-  const m = parseInt(s.slice(4, 6), 10);
-  const d = parseInt(s.slice(6, 8), 10);
-  return `${MONTHS[m - 1] ?? ""} ${d || ""}`.trim();
+  if (!s) return "";
+  if (/^\d{8}T/.test(s)) {
+    const m = parseInt(s.slice(4, 6), 10);
+    const d = parseInt(s.slice(6, 8), 10);
+    return `${MONTHS[m - 1] ?? ""} ${d || ""}`.trim();
+  }
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return "";
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}`;
 }
 
 export default function NewsCard({
@@ -52,7 +57,7 @@ export default function NewsCard({
     <section className="card news-card">
       <h3>
         Trade in the news{" "}
-        <span className="year">GDELT · global media scan</span>
+        <span className="year">Bing News + GDELT · free media scan</span>
       </h3>
       {loading ? (
         <p className="hint">scanning news feeds…</p>

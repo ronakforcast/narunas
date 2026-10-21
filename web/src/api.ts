@@ -197,7 +197,16 @@ export async function fetchTradeNews(
 ): Promise<NewsArticle[] | null> {
   const key = `${nameA}|${nameB}`;
   if (newsCache.has(key)) return newsCache.get(key) ?? null;
-  const q = `(${nameA} OR ${nameB}) (trade OR exports OR imports OR tariff OR sanctions)`;
+
+  // primary: Bing News RSS through the free cors.dev proxy (no key)
+  const viaBing = await fetchBingNews(nameA, nameB);
+  if (viaBing && viaBing.length > 0) {
+    newsCache.set(key, viaBing);
+    return viaBing;
+  }
+
+  // fallback: GDELT global media scan (keyless, CORS, ~1 request / 5 s)
+  const q = `"${nameA}" "${nameB}" trade`;
   const url =
     "https://api.gdeltproject.org/api/v2/doc/doc?query=" +
     encodeURIComponent(q) +
@@ -238,6 +247,35 @@ export async function fetchTradeNews(
     return out;
   } catch {
     newsCache.set(key, null);
+    return null;
+  }
+}
+
+async function fetchBingNews(
+  nameA: string,
+  nameB: string,
+): Promise<NewsArticle[] | null> {
+  const q = `${nameA} ${nameB} trade`;
+  const bing =
+    "https://www.bing.com/news/search?q=" +
+    encodeURIComponent(q) +
+    "&format=RSS";
+  const url = "https://proxy.cors.dev/" + bing;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const xml = await res.text();
+    const doc = new DOMParser().parseFromString(xml, "text/xml");
+    const items = [...doc.querySelectorAll("item")].slice(0, 6);
+    return items
+      .map((it) => ({
+        title: it.querySelector("title")?.textContent ?? "",
+        url: it.querySelector("link")?.textContent ?? "",
+        domain: "Bing News",
+        seen: it.querySelector("pubDate")?.textContent ?? null,
+      }))
+      .filter((a) => a.title && a.url);
+  } catch {
     return null;
   }
 }
