@@ -17,18 +17,18 @@ export interface FlowChartProps {
   flags: Map<string, string>; // iso3 -> iso2 (for flag emoji)
 }
 
-const COLOR_A = "#00f2ff"; // peoplemov cyan — country A / direct A→B
-const COLOR_B = "#ff00ff"; // peoplemov magenta — country B
-// categorical ribbon colors per intermediary (from peoplemov's own palette)
+const COLOR_A = "#ff8c00"; // amber — country A / direct A→B
+const COLOR_B = "#00e5ff"; // ice cyan — country B
+// steel-and-ice tones per intermediary (subordinate to the two accents)
 const IM_COLORS = [
-  "#1b9e77",
-  "#1f78b4",
-  "#d95f02",
-  "#7570b3",
-  "#e7298a",
-  "#66a61e",
-  "#e6ab02",
-  "#a6761d",
+  "#4fc3f7",
+  "#80cbc4",
+  "#b0bec5",
+  "#ffd54f",
+  "#ff8c00",
+  "#00e676",
+  "#9575cd",
+  "#78909c",
 ];
 const imColor = (i: number) => IM_COLORS[i % IM_COLORS.length];
 
@@ -157,7 +157,7 @@ export default function FlowChart({
         How {nameOf(from)}'s goods reach {nameOf(to)}
       </text>
       <text x={W / 2} y={44} textAnchor="middle" className="flow-sub">
-        {pairData.indirect.year} · wider ribbon, more money · the cyan line is
+        {pairData.indirect.year} · wider ribbon, more money · the amber line is
         direct trade
       </text>
 

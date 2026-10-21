@@ -3,9 +3,9 @@ import { fmtUSD } from "./format";
 import Timeseries from "./Timeseries";
 import { IconSwap, IconClose } from "./icons";
 
-const COLOR_A = "#00f2ff"; // peoplemov cyan
-const COLOR_B = "#ff00ff"; // peoplemov magenta
-const COLOR_TIVA = "#e6ab02"; // peoplemov gold
+const COLOR_A = "#ff8c00"; // amber — country A
+const COLOR_B = "#00e5ff"; // ice cyan — country B
+const COLOR_TIVA = "#e0e6ed"; // silver — value added
 
 function flag(iso2: string | null): string {
   if (!iso2 || iso2.length !== 2) return "🏳️";

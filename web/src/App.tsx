@@ -207,6 +207,7 @@ export default function App() {
                 flagA={flagOf(pairData.from)}
                 flagB={flagOf(pairData.to)}
               />
+              <SummaryCards pairData={pairData} names={names} />
               <div className="dir-tabs" role="tablist">
                 <button
                   role="tab"
@@ -233,7 +234,6 @@ export default function App() {
                   flags={flags}
                 />
               </div>
-              <SummaryCards pairData={pairData} names={names} />
               <TopPartners
                 isoA={pairData.from}
                 isoB={pairData.to}

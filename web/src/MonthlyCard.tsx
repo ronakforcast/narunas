@@ -1,8 +1,8 @@
 import type { MonthlyData, MonthlyPoint } from "./types";
 import { fmtEUR } from "./format";
 
-const COLOR_A = "#00f2ff";
-const COLOR_B = "#ff00ff";
+const COLOR_A = "#ff8c00"; // amber — country A
+const COLOR_B = "#00e5ff"; // ice cyan — country B
 
 /** "2026 so far" total for a monthly series. */
 function ytd(points: MonthlyPoint[]): { total: number; year: number } {

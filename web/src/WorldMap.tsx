@@ -40,8 +40,8 @@ interface Feat {
   d: string;
 }
 
-const COLOR_A = "#00f2ff"; // peoplemov cyan
-const COLOR_B = "#ff00ff"; // peoplemov magenta
+const COLOR_A = "#ff8c00"; // amber — country A
+const COLOR_B = "#00e5ff"; // ice cyan — country B
 
 export default function WorldMap(props: WorldMapProps) {
   const { known, names, selA, selB, pairData, onPick, showArcs = false } =
@@ -208,7 +208,7 @@ function Badge({
         cy={p.y - 14 / k}
         r={r}
         fill={color}
-        stroke="#0b1220"
+        stroke="#223349"
         strokeWidth={1.5 / k}
       />
       <text
@@ -217,7 +217,7 @@ function Badge({
         textAnchor="middle"
         fontSize={11 / k}
         fontWeight={800}
-        fill="#0b1220"
+        fill="#0e1726"
       >
         {n}
       </text>

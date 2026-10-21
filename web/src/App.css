@@ -1,23 +1,26 @@
 /* ============================================================
-   Trade Flow Explorer — peoplemov.in theme
-   Black background · white/#aaa text · #00f2ff accent
-   Arvo (headings) + Open Sans (everything else)
+   Trade Flow Explorer — command center theme
+   Deep-space black · amber/cyan accents · Rajdhani + JetBrains Mono
+   HUD panels with corner brackets, 20px coordinate grid, vignette
    ============================================================ */
 
 :root {
-  --bg: #000000;
-  --bg-panel: rgba(0, 0, 0, 0.9);
-  --card: #0d0d0d;
-  --line: #333333;
-  --line-soft: #222222;
-  --text: #ffffff;
-  --muted: #aaaaaa;
-  --accent: #00f2ff; /* peoplemov cyan */
-  --accent-2: #ff00ff; /* peoplemov magenta */
-  --gold: #e6ab02;
-  --ring: #00f2ff;
-  --font-serif: "Arvo", Georgia, serif;
-  --font-sans: "Open Sans", Arial, Helvetica, sans-serif;
+  --bg: #05070b;
+  --bg-panel: rgba(10, 15, 24, 0.72);
+  --card: rgba(11, 16, 26, 0.65);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --text: #e0e6ed;
+  --muted: #64748b;
+  --accent: #ff8c00; /* amber — country A / primary flows */
+  --accent-2: #00e5ff; /* ice cyan — country B / secondary flows */
+  --ok: #00e676; /* status green — surplus */
+  --alert: #ff1744; /* alert red — deficit */
+  --gold: #e0e6ed;
+  --ring: #ff8c00;
+  --font-serif: "Rajdhani", "Segoe UI", Arial, sans-serif;
+  --font-sans: "Rajdhani", "Segoe UI", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
 }
 
 * {
@@ -29,15 +32,25 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 16px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 35%, #0a1018 0%, #05070b 72%),
+    #05070b;
+  background-size:
+    20px 20px,
+    20px 20px,
+    auto,
+    auto;
+  background-attachment: fixed;
 }
 
 ::selection {
-  background: #00ddff;
-  color: #fff;
+  background: #ff8c00;
+  color: #05070b;
 }
 
 /* ---- global interaction & accessibility ---- */
@@ -139,10 +152,11 @@ header {
 
 header h1 {
   font-family: var(--font-serif);
-  font-size: 31px;
-  line-height: 36px;
-  font-weight: 400;
-  letter-spacing: 2px;
+  font-size: 26px;
+  line-height: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
   margin: 0;
 }
 
@@ -151,11 +165,12 @@ header h1 span {
 }
 
 header h2 {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 300;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
   color: var(--muted);
-  letter-spacing: 1px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   margin: 0;
 }
 
@@ -207,7 +222,9 @@ header h2 {
 
 .status {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
 }
 
 .loading {
@@ -424,13 +441,13 @@ svg.map:active {
 }
 
 .country.sel-a {
-  fill: #013c44;
+  fill: #4a2c05;
   stroke: var(--accent);
   stroke-width: 1.2;
 }
 
 .country.sel-b {
-  fill: #3c0140;
+  fill: #00333d;
   stroke: var(--accent-2);
   stroke-width: 1.2;
 }
@@ -486,18 +503,20 @@ svg.map:active {
 }
 
 .dir-tabs button {
-  background: transparent;
+  background: var(--bg-panel);
   border: 1px solid var(--line);
   color: var(--muted);
-  border-radius: 4px;
-  padding: 7px 18px;
+  border-radius: 2px;
+  padding: 6px 14px;
   cursor: pointer;
-  font-size: 13.5px;
-  font-weight: 400;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
 }
 
 .dir-tabs button:hover {
@@ -619,15 +638,34 @@ svg.map:active {
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1px;
-  background: var(--line-soft);
-  border-top: 1px solid var(--line-soft);
-  border-bottom: 1px solid var(--line-soft);
+  gap: 10px;
+  padding: 0 16px 12px;
 }
 
 .scard {
-  background: var(--bg);
-  padding: 14px 18px;
+  position: relative;
+  background: var(--card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 10px 14px 12px;
+}
+
+.scard:nth-child(1) {
+  border-top: 2px solid var(--accent);
+}
+
+.scard:nth-child(2) {
+  border-top: 2px solid var(--muted);
+}
+
+.scard:nth-child(3) {
+  border-top: 2px solid var(--accent-2);
+}
+
+.scard:nth-child(4) {
+  border-top: 2px solid #e0e6ed;
 }
 
 .sc-label {
@@ -709,25 +747,53 @@ svg.map:active {
 }
 
 .card {
+  position: relative;
   background: var(--card);
-  border: 1px solid var(--line-soft);
-  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: 2px;
   padding: 14px 16px;
   margin-bottom: 14px;
 }
 
+/* corner brackets */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+
+.card::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid rgba(255, 255, 255, 0.4);
+  border-left: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.card::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  border-right: 2px solid rgba(255, 255, 255, 0.4);
+}
+
 .card.headline {
-  border-color: #26414a;
+  border-color: rgba(255, 140, 0, 0.28);
 }
 
 .card h3 {
   margin: 2px 0 10px;
   font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.5px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
   color: var(--text);
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 6px;
 }
 
@@ -752,10 +818,11 @@ svg.map:active {
 }
 
 .big {
-  font-family: var(--font-serif);
-  font-size: 24px;
-  font-weight: 400;
+  font-family: var(--font-mono);
+  font-size: 23px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 16px currentcolor;
 }
 
 .sub {
@@ -1309,6 +1376,131 @@ details.products .val {
   }
 }
 
+/* ---------- HUD chrome: telemetry typography & rulers ---------- */
+
+/* micro technical subtitle inside panel headers */
+.card h3 .year,
+.balance-banner .year {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+/* section marker prefix on panel headers */
+.card h3::before {
+  content: "// ";
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* data values in monospace with tabular alignment */
+.sc-row > span:first-child,
+.tp-total,
+.pr-val,
+.im-val2,
+.im-total b,
+.bal-out,
+.bal-in {
+  font-family: var(--font-mono);
+}
+
+.sc-row > span:first-child {
+  text-shadow: 0 0 12px currentcolor;
+}
+
+.sc-sub,
+.tp-foot,
+.pr-framing,
+.pr-share,
+.vs-direct {
+  font-family: var(--font-mono);
+}
+
+/* data lists get monospace labels */
+.tp-name,
+.pr-desc,
+.im-name2 {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* side margin rulers — alternating tick marks */
+.app::before,
+.app::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  pointer-events: none;
+  z-index: 40;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.16) 0 1px,
+      transparent 1px 10px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.32) 0 1px,
+      transparent 1px 50px
+    );
+}
+
+.app::before {
+  left: 0;
+}
+
+.app::after {
+  right: 0;
+}
+
+@media (max-width: 1100px) {
+  .app::before,
+  .app::after {
+    display: none;
+  }
+}
+
+/* thin technical scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* results dropdown and chips follow the panel language */
+.results li {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.results .iso {
+  font-size: 10px;
+}
+
+.chip-slot input {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
 /* ---------- monthly freshness card ---------- */
 .monthly .monthly-grid {
   display: grid;
@@ -1365,13 +1557,13 @@ details.products .val {
 }
 
 .balance-banner.export {
-  border-color: var(--accent);
-  box-shadow: inset 3px 0 0 var(--accent);
+  border-color: var(--ok);
+  box-shadow: inset 3px 0 0 var(--ok);
 }
 
 .balance-banner.import {
-  border-color: var(--accent-2);
-  box-shadow: inset 3px 0 0 var(--accent-2);
+  border-color: var(--alert);
+  box-shadow: inset 3px 0 0 var(--alert);
 }
 
 .balance-verdict {
@@ -1382,11 +1574,11 @@ details.products .val {
 }
 
 .balance-banner.export .balance-verdict {
-  color: var(--accent);
+  color: var(--ok);
 }
 
 .balance-banner.import .balance-verdict {
-  color: var(--accent-2);
+  color: var(--alert);
 }
 
 .balance-detail {
@@ -1414,12 +1606,12 @@ details.products .val {
 }
 
 .bal-diff.pos {
-  color: var(--accent);
+  color: var(--ok);
   font-weight: 600;
 }
 
 .bal-diff.neg {
-  color: var(--accent-2);
+  color: var(--alert);
   font-weight: 600;
 }
 
