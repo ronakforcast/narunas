@@ -371,15 +371,17 @@ main {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
 }
 
 /* ---------- command deck: rails + globe stage ---------- */
 .deck {
-  flex: 1;
+  flex: none;
   min-height: 0;
   display: flex;
   gap: 14px;
   padding: 14px 16px 16px;
+  height: calc(100vh - 95px);
 }
 
 .rail {
@@ -424,21 +426,9 @@ main {
   min-width: 620px;
 }
 
-/* floating verdict over the globe */
-.banner-float {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(720px, calc(100% - 36px));
-  z-index: 5;
-  pointer-events: none;
-}
-
-.banner-float .balance-banner {
-  margin: 0;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+/* verdict banner lives at the top of the left rail */
+.rail .balance-banner {
+  margin: 0 0 14px;
 }
 
 /* standby panel over the globe before a pair is picked */
@@ -450,6 +440,16 @@ main {
   width: min(460px, calc(100% - 40px));
   z-index: 5;
   pointer-events: none;
+}
+
+/* full-width sections below the deck */
+.under {
+  flex: none;
+  padding: 0 16px 26px;
+}
+
+.under .dir-tabs {
+  padding: 2px 0 10px;
 }
 
 /* ---------- map picker ---------- */
@@ -1182,9 +1182,14 @@ details.products .val {
   }
   main {
     display: block;
+    overflow: visible;
   }
   .deck {
     flex-direction: column;
+    height: auto;
+  }
+  .deck .stage {
+    order: -1;
   }
   .rail {
     width: 100%;
@@ -1201,13 +1206,6 @@ details.products .val {
   .stage svg.map {
     height: auto;
     max-height: 46vh;
-  }
-  .banner-float {
-    position: static;
-    transform: none;
-    width: auto;
-    padding: 10px 14px 0;
-    pointer-events: auto;
   }
   .empty-float {
     position: static;

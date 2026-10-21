@@ -177,44 +177,27 @@ export default function App() {
 
       <main>
         <div className="deck">
-          {/* ---- left rail: the numbers and the flow story ---- */}
+          {/* ---- left rail: verdict, numbers, rankings ---- */}
           <aside className="rail">
             {pairData ? (
               <>
+                <BalanceBanner
+                  data={pairData}
+                  nameA={names.get(pairData.from) ?? pairData.from}
+                  nameB={names.get(pairData.to) ?? pairData.to}
+                  flagA={flagOf(pairData.from)}
+                  flagB={flagOf(pairData.to)}
+                />
                 <SummaryCards pairData={pairData} names={names} />
-                <div className="dir-tabs" role="tablist">
-                  <button
-                    role="tab"
-                    aria-selected={dir === "ab"}
-                    className={dir === "ab" ? "active a" : ""}
-                    onClick={() => setDir("ab")}
-                  >
-                    {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
-                  </button>
-                  <button
-                    role="tab"
-                    aria-selected={dir === "ba"}
-                    className={dir === "ba" ? "active b" : ""}
-                    onClick={() => setDir("ba")}
-                  >
-                    {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
-                  </button>
-                </div>
-                <div className="flow-scroll">
-                  <FlowChart
-                    pairData={pairData}
-                    direction={dir}
-                    names={names}
-                    flags={flags}
-                  />
-                </div>
-                {monthly && (
-                  <MonthlyCard
-                    data={monthly}
-                    nameA={names.get(pairData.from) ?? pairData.from}
-                    nameB={names.get(pairData.to) ?? pairData.to}
-                  />
-                )}
+                <TopPartners
+                  isoA={pairData.from}
+                  isoB={pairData.to}
+                  nameA={names.get(pairData.from) ?? pairData.from}
+                  nameB={names.get(pairData.to) ?? pairData.to}
+                  names={names}
+                  flags={flags}
+                  year={pairData.indirect.year}
+                />
               </>
             ) : null}
           </aside>
@@ -231,17 +214,7 @@ export default function App() {
               direction={dir}
               showArcs={!!pairData}
             />
-            {pairData ? (
-              <div className="banner-float">
-                <BalanceBanner
-                  data={pairData}
-                  nameA={names.get(pairData.from) ?? pairData.from}
-                  nameB={names.get(pairData.to) ?? pairData.to}
-                  flagA={flagOf(pairData.from)}
-                  flagB={flagOf(pairData.to)}
-                />
-              </div>
-            ) : (
+            {!pairData && (
               <div className="empty-float">
                 <div className="hero-empty-inner">
                   <h2>Pick two countries</h2>
@@ -261,18 +234,9 @@ export default function App() {
             )}
           </section>
 
-          {/* ---- right rail: rankings and the deep detail ---- */}
+          {/* ---- right rail: products and the deep detail ---- */}
           {pairData && (
             <aside className="rail">
-              <TopPartners
-                isoA={pairData.from}
-                isoB={pairData.to}
-                nameA={names.get(pairData.from) ?? pairData.from}
-                nameB={names.get(pairData.to) ?? pairData.to}
-                names={names}
-                flags={flags}
-                year={pairData.indirect.year}
-              />
               <TopProducts
                 pairData={pairData}
                 nameA={names.get(pairData.from) ?? pairData.from}
@@ -289,6 +253,45 @@ export default function App() {
             </aside>
           )}
         </div>
+
+        {/* ---- below: the flow story and the monthly layer ---- */}
+        {pairData && (
+          <div className="under">
+            <div className="dir-tabs" role="tablist">
+              <button
+                role="tab"
+                aria-selected={dir === "ab"}
+                className={dir === "ab" ? "active a" : ""}
+                onClick={() => setDir("ab")}
+              >
+                {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
+              </button>
+              <button
+                role="tab"
+                aria-selected={dir === "ba"}
+                className={dir === "ba" ? "active b" : ""}
+                onClick={() => setDir("ba")}
+              >
+                {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
+              </button>
+            </div>
+            <div className="flow-scroll">
+              <FlowChart
+                pairData={pairData}
+                direction={dir}
+                names={names}
+                flags={flags}
+              />
+            </div>
+            {monthly && (
+              <MonthlyCard
+                data={monthly}
+                nameA={names.get(pairData.from) ?? pairData.from}
+                nameB={names.get(pairData.to) ?? pairData.to}
+              />
+            )}
+          </div>
+        )}
       </main>
     </div>
   );
