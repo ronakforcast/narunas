@@ -127,12 +127,12 @@ export default function App() {
   const status = error
     ? `⚠ ${error}`
     : !selA
-      ? "Click a country on the map — or search — to choose country A"
+      ? "Click a country on the map to pick A, or search by name"
       : !selB
-        ? `${names.get(selA)} selected as A — now choose country B`
+        ? `${names.get(selA)} is A. Now pick B.`
         : loading
           ? "loading…"
-          : "";
+          : "Click any country to start a new pair";
 
   return (
     <div className="app">
@@ -141,13 +141,13 @@ export default function App() {
           <h1>
             trade<span>flow</span> explorer
           </h1>
-          <h2>direct & indirect trade between two countries.</h2>
+          <h2>what two countries really trade, and through whom</h2>
         </div>
         <div className="search">
           <input
             ref={searchRef}
             value={query}
-            placeholder="Search country… (Enter to select)"
+            placeholder="Search country by name"
             onChange={(e) => {
               setQuery(e.target.value);
               setHi(0);
@@ -298,16 +298,17 @@ export default function App() {
           ) : (
             <div className="hero-empty">
               <div className="hero-empty-inner">
-                <h2>Pick two countries to see their trade flows</h2>
+                <h2>Pick two countries</h2>
                 <p>
-                  Direct trade, services and value-added links — plus the{" "}
-                  <b>indirect routes</b> through intermediary countries, drawn as
-                  flowing ribbons.
+                  See how much they trade directly, in goods and services, and
+                  how much of it travels through middleman countries. Ribbons
+                  are sized by money. The TiVA numbers below show where each
+                  economy's value actually ends up.
                 </p>
                 <p className="hint">
-                  <span className="step">1</span> choose country A ·{" "}
-                  <span className="step">2</span> choose country B — on the map, or search
-                  above.
+                  <span className="step">1</span> pick country A ·{" "}
+                  <span className="step">2</span> pick country B, on the map or
+                  in the search box.
                 </p>
               </div>
             </div>

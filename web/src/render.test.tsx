@@ -194,8 +194,8 @@ describe("PairPanel rendering", () => {
     expect(html).toContain("$796M");
     expect(html).toContain("im-bar");
     expect(html).toContain("Kazakhstan");
-    expect(html).toContain("Direct trade — goods");
+    expect(html).toContain("Direct goods");
     expect(html).toContain("$688M");
-    expect(html).toContain("Value added links");
+    expect(html).toContain("Value added (OECD TiVA)");
   });
 });

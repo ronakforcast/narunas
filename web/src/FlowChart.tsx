@@ -157,8 +157,8 @@ export default function FlowChart({
         How {nameOf(from)}'s goods reach {nameOf(to)}
       </text>
       <text x={W / 2} y={44} textAnchor="middle" className="flow-sub">
-        {pairData.indirect.year} · ribbon width ∝ value · direct trade shown in
-        gold
+        {pairData.indirect.year} · wider ribbon, more money · the cyan line is
+        direct trade
       </text>
 
       {/* ribbons */}

@@ -87,9 +87,9 @@ export default function PairPanel({
           <span className="year">goods · {data.indirect.year} · estimated</span>
         </h3>
         <p className="hint">
-          Goods that plausibly route <b>A → intermediary → B</b> — matched on
-          shared products (upper-bound estimate, see methodology). Direct trade
-          below for comparison.
+          How much goes from A to a middleman and then on to B, counted only
+          on products both legs share. The middleman may keep some of it, so
+          read the figure as a ceiling. Details under methodology.
         </p>
         <IntermediaryBars
           title={`${nameA} → … → ${nameB}`}
@@ -112,7 +112,7 @@ export default function PairPanel({
       {/* ---------- direct goods ---------- */}
       <section className="card">
         <h3>
-          Direct trade — goods <span className="year">{year}</span>
+          Direct goods <span className="year">{year}</span>
         </h3>
         <div className="big-nums">
           <div>
@@ -161,7 +161,7 @@ export default function PairPanel({
       {(servAB != null || servBA != null) && (
         <section className="card">
           <h3>
-            Direct trade — services <span className="year">{servYear}</span>
+            Direct services <span className="year">{servYear}</span>
           </h3>
           <div className="big-nums">
             <div>
@@ -188,12 +188,11 @@ export default function PairPanel({
       {tivaYear != null && (
         <section className="card">
           <h3>
-            Value added links (OECD TiVA){" "}
-            <span className="year">{tivaYear}</span>
+            Value added (OECD TiVA) <span className="year">{tivaYear}</span>
           </h3>
           <p className="hint">
-            True value-added measures from input-output analysis — how much of
-            one country's economy ends up in the other, through all routes.
+            Input-output analysis of how much of one economy ends up inside the
+            other, whatever route the goods took.
           </p>
           <ul className="tiva-list">
             {Object.entries(data.tiva.measures)
@@ -230,11 +229,11 @@ export default function PairPanel({
           added: <b>OECD TiVA</b> ({tivaYear}).
         </p>
         <p>
-          Indirect estimates = Σ over shared HS product headings of min(exports
-          A→C, exports C→B) — the shared-product transshipment indicator used in
-          the sanctions re-routing literature (EBRD/CEPR "Eurasian Roundabout").
-          It is an <b>upper bound</b>: the intermediary may consume those goods
-          itself.
+          For every product heading both legs share, the indirect figure takes
+          the smaller of exports from A to C and exports from C to B, and adds
+          them up. Researchers use the same method to track sanctions
+          re-routing (EBRD/CEPR, "Eurasian Roundabout"). It is an upper bound:
+          the intermediary may consume those goods itself.
         </p>
       </section>
     </div>

@@ -78,14 +78,14 @@ export default function MonthlyCard({
   return (
     <section className="card monthly">
       <h3>
-        Recent months — live{" "}
+        Recent months{" "}
         <span className="year">
           through {last} · EUR · {data.source}
         </span>
       </h3>
       <p className="hint">
-        Monthly reported trade (not yet reconciled). Annual figures above are
-        the reconciled baseline; this shows what is happening right now.
+        Monthly figures as each side reports them, so they can still change.
+        The annual numbers above are the settled ones.
       </p>
       <div className="monthly-grid">
         <div className="monthly-col">
