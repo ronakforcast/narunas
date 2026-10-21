@@ -80,35 +80,6 @@ export default function PairPanel({
         </div>
       </div>
 
-      {/* ---------- INDIRECT: the headline ---------- */}
-      <section className="card headline">
-        <h3>
-          Indirect trade via third countries{" "}
-          <span className="year">goods · {data.indirect.year} · estimated</span>
-        </h3>
-        <p className="hint">
-          How much goes from A to a middleman and then on to B, counted only
-          on products both legs share. The middleman may keep some of it, so
-          read the figure as a ceiling. Details under methodology.
-        </p>
-        <IntermediaryBars
-          title={`${nameA} → … → ${nameB}`}
-          color={COLOR_A}
-          total={indirectTotalAB}
-          direct={gAB}
-          list={data.indirect.from_to}
-          nameOf={nameOf}
-        />
-        <IntermediaryBars
-          title={`${nameB} → … → ${nameA}`}
-          color={COLOR_B}
-          total={indirectTotalBA}
-          direct={gBA}
-          list={data.indirect.to_from}
-          nameOf={nameOf}
-        />
-      </section>
-
       {/* ---------- direct goods ---------- */}
       <section className="card">
         <h3>
@@ -220,6 +191,35 @@ export default function PairPanel({
           />
         </section>
       )}
+
+      {/* ---------- indirect trade via third countries ---------- */}
+      <section className="card headline">
+        <h3>
+          Indirect trade via third countries{" "}
+          <span className="year">goods · {data.indirect.year} · estimated</span>
+        </h3>
+        <p className="hint">
+          How much goes from A to a middleman and then on to B, counted only
+          on products both legs share. The middleman may keep some of it, so
+          read the figure as a ceiling. Details under methodology.
+        </p>
+        <IntermediaryBars
+          title={`${nameA} → … → ${nameB}`}
+          color={COLOR_A}
+          total={indirectTotalAB}
+          direct={gAB}
+          list={data.indirect.from_to}
+          nameOf={nameOf}
+        />
+        <IntermediaryBars
+          title={`${nameB} → … → ${nameA}`}
+          color={COLOR_B}
+          total={indirectTotalBA}
+          direct={gBA}
+          list={data.indirect.to_from}
+          nameOf={nameOf}
+        />
+      </section>
 
       <section className="card methodology">
         <h3>Methodology & sources</h3>
