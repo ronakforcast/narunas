@@ -634,34 +634,40 @@ svg.map:active {
 }
 
 .flow-node-label {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 400;
   fill: var(--text);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
 }
 
 .flow-node-label.hero {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .flow-node-value {
-  font-size: 11px;
+  font-size: 10.5px;
   fill: var(--muted);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 .flow-node-value.hero {
-  font-size: 12.5px;
+  font-size: 12px;
 }
 
 .flow-link {
-  transition: opacity 150ms ease;
+  fill-opacity: 0.42;
+  transition: fill-opacity 160ms ease;
 }
 
 .flow-link:hover {
-  opacity: 0.95 !important;
+  fill-opacity: 0.88;
+}
+
+.flow-link.direct {
+  fill-opacity: 0.88;
+  filter: drop-shadow(0 0 7px rgba(255, 140, 0, 0.35));
 }
 
 .flow-empty {

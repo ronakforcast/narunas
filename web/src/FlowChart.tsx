@@ -19,16 +19,16 @@ export interface FlowChartProps {
 
 const COLOR_A = "#ff8c00"; // amber — country A / direct A→B
 const COLOR_B = "#00e5ff"; // ice cyan — country B
-// steel-and-ice tones per intermediary (subordinate to the two accents)
+// glacier ramp per intermediary — cool blues flowing toward B's cyan
 const IM_COLORS = [
+  "#6b7fd7",
+  "#5f92e0",
+  "#55aee6",
   "#4fc3f7",
-  "#80cbc4",
-  "#b0bec5",
-  "#ffd54f",
-  "#ff8c00",
-  "#00e676",
-  "#9575cd",
-  "#78909c",
+  "#49cfe0",
+  "#5ad6bd",
+  "#7eddc2",
+  "#a8e3cd",
 ];
 const imColor = (i: number) => IM_COLORS[i % IM_COLORS.length];
 
@@ -126,6 +126,13 @@ export default function FlowChart({
 
   const pathGen = sankeyLinkHorizontal<Nodal, Linkal>();
 
+  const colorOfNode = (id: string): string =>
+    id === from
+      ? COLOR_A
+      : id === to
+        ? COLOR_B
+        : (colorOf.get(id) ?? "#8a97a8");
+
   const latest = pairData.goods.years.length - 1;
   const directVal =
     direction === "ab"
@@ -153,22 +160,38 @@ export default function FlowChart({
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="flowchart">
+      <defs>
+        {graph.links.map((l, i) => {
+          const s = l.source as SankeyNode<Nodal, Linkal>;
+          const t = l.target as SankeyNode<Nodal, Linkal>;
+          return (
+            <linearGradient
+              key={`g-${i}`}
+              id={`fg-${i}`}
+              gradientUnits="userSpaceOnUse"
+              x1={s.x1 ?? 0}
+              y1={0}
+              x2={t.x0 ?? 0}
+              y2={0}
+            >
+              <stop offset="0%" stopColor={colorOfNode(s.id)} />
+              <stop offset="100%" stopColor={colorOfNode(t.id)} />
+            </linearGradient>
+          );
+        })}
+      </defs>
       <text x={W / 2} y={26} textAnchor="middle" className="flow-title">
         How {nameOf(from)}'s goods reach {nameOf(to)}
       </text>
       <text x={W / 2} y={44} textAnchor="middle" className="flow-sub">
-        {pairData.indirect.year} · wider ribbon, more money · the amber line is
+        {pairData.indirect.year} · wider ribbon, more money · the amber band is
         direct trade
       </text>
 
-      {/* ribbons */}
+      {/* ribbons — filled bands, gradient from source colour to target */}
       {graph.links.map((l, i) => {
         const d = pathGen(l);
         if (!d) return null;
-        const color =
-          l.kind === "direct"
-            ? COLOR_A
-            : (colorOf.get(l.via!) ?? "#888");
         const title =
           l.kind === "direct"
             ? `direct: ${fmtUSD(l.value)}`
@@ -185,11 +208,10 @@ export default function FlowChart({
           <path
             key={`l-${i}`}
             d={d}
-            fill="none"
-            stroke={color}
-            strokeWidth={Math.max(l.width ?? 1, 1.2)}
-            opacity={l.kind === "direct" ? 0.92 : 0.5}
-            className="flow-link"
+            fill={`url(#fg-${i})`}
+            className={
+              l.kind === "direct" ? "flow-link direct" : "flow-link"
+            }
           >
             <title>{title}</title>
           </path>
@@ -215,9 +237,11 @@ export default function FlowChart({
               y={node.y0}
               width={node.x1 - node.x0}
               height={Math.max(node.y1 - node.y0, 2)}
-              rx={3}
+              rx={2}
               fill={color}
-              opacity={isA || isB ? 1 : 0.85}
+              opacity={isA || isB ? 1 : 0.9}
+              stroke="#0a0e17"
+              strokeWidth={0.75}
             />
             {isA && (
               <>
