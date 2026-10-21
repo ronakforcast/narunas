@@ -45,6 +45,7 @@ interface Feat {
 
 const COLOR_A = "#ff8c00"; // amber — country A
 const COLOR_B = "#00e5ff"; // ice cyan — country B
+const VIA_C = "#4fc3f7"; // ice — the intermediary routes
 
 /** Great-circle path between two lon/lat points, projected on the globe. */
 function greatCircle(
@@ -205,12 +206,26 @@ export default function WorldMap(props: WorldMapProps) {
       ...ims.map((x) => x.estimate_musd),
       1,
     );
-    const legs: { d: string; w: number; direct: boolean }[] = [];
+    const fromP = proj(aC);
+    const toP = proj(bC);
+    const legs: {
+      d: string;
+      w: number;
+      direct: boolean;
+      c1: string;
+      c2: string;
+      x1: number;
+      x2: number;
+    }[] = [];
     if (directVal > 0) {
       legs.push({
         d: greatCircle(aC, bC, proj),
         w: 1.4 + (directVal / maxVal) * 1.6,
         direct: true,
+        c1: COLOR_A,
+        c2: COLOR_B,
+        x1: fromP.x,
+        x2: toP.x,
       });
     }
     ims.forEach((im) => {
@@ -218,10 +233,31 @@ export default function WorldMap(props: WorldMapProps) {
       if (!cC) return;
       const share = im.estimate_musd / maxVal;
       const w = 0.8 + share * 0.9;
-      legs.push({ d: greatCircle(aC, cC, proj), w, direct: false });
-      legs.push({ d: greatCircle(cC, bC, proj), w, direct: false });
+      const cp = proj(cC);
+      legs.push({
+        d: greatCircle(aC, cC, proj),
+        w,
+        direct: false,
+        c1: COLOR_A,
+        c2: VIA_C,
+        x1: fromP.x,
+        x2: cp.x,
+      });
+      legs.push({
+        d: greatCircle(cC, bC, proj),
+        w,
+        direct: false,
+        c1: VIA_C,
+        c2: COLOR_B,
+        x1: cp.x,
+        x2: toP.x,
+      });
     });
-    return { from: proj(aC), to: proj(bC), legs };
+    const imPts = ims
+      .map((im) => cent.get(im.intermediary))
+      .filter((c): c is [number, number] => !!c)
+      .map((c) => proj(c));
+    return { from: fromP, to: toP, legs, imPts };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showArcs, pairData, direction, cent, projection]);
 
@@ -308,19 +344,54 @@ export default function WorldMap(props: WorldMapProps) {
             );
           })}
 
-          {/* thin great-circle trade arcs on the globe */}
+          {/* trade routes — globe.gl airline style: faint underlay, animated
+              dash comets on the via legs, solid glow on the direct band */}
           {arcs && (
             <g className="arcs" pointerEvents="none">
+              <defs>
+                {arcs.legs.map((l, i) => (
+                  <linearGradient
+                    key={`gd-${i}`}
+                    id={`ga-${i}`}
+                    gradientUnits="userSpaceOnUse"
+                    x1={l.x1}
+                    y1={0}
+                    x2={l.x2}
+                    y2={0}
+                  >
+                    <stop offset="0%" stopColor={l.c1} />
+                    <stop offset="100%" stopColor={l.c2} />
+                  </linearGradient>
+                ))}
+              </defs>
               {arcs.legs.map((l, i) => (
-                <path
-                  key={i}
-                  d={l.d}
-                  fill="none"
-                  className={
-                    l.direct ? "trade-arc direct" : "trade-arc via"
-                  }
-                  strokeWidth={l.w / k}
-                />
+                <g key={`lg-${i}`}>
+                  <path
+                    d={l.d}
+                    fill="none"
+                    className="trade-underlay"
+                    stroke={l.direct ? COLOR_A : VIA_C}
+                    strokeWidth={Math.max(l.w * 0.55, 0.6) / k}
+                  />
+                  {l.direct ? (
+                    <path
+                      d={l.d}
+                      fill="none"
+                      className="trade-arc direct"
+                      strokeWidth={l.w / k}
+                    />
+                  ) : (
+                    <path
+                      d={l.d}
+                      fill="none"
+                      pathLength={100}
+                      className="trade-arc flight"
+                      stroke={`url(#ga-${i})`}
+                      strokeWidth={Math.max(l.w * 1.5, 2) / k}
+                      style={{ animationDelay: `${(i * 0.9) % 3.6}s` }}
+                    />
+                  )}
+                </g>
               ))}
               <circle
                 cx={arcs.from.x}
@@ -334,6 +405,15 @@ export default function WorldMap(props: WorldMapProps) {
                 r={4 / k}
                 className="node-dot node-b"
               />
+              {arcs.imPts.map((p, i) => (
+                <circle
+                  key={`di-${i}`}
+                  cx={p.x}
+                  cy={p.y}
+                  r={3 / k}
+                  className="node-dot node-i"
+                />
+              ))}
               <circle
                 cx={arcs.from.x}
                 cy={arcs.from.y}
@@ -346,8 +426,65 @@ export default function WorldMap(props: WorldMapProps) {
                 r={4 / k}
                 className="node-pulse pulse-b"
               />
+              {arcs.imPts.map((p, i) => (
+                <circle
+                  key={`ri-${i}`}
+                  cx={p.x}
+                  cy={p.y}
+                  r={4 / k}
+                  className="node-pulse pulse-i"
+                  style={{ animationDelay: `${0.6 + i * 0.35}s` }}
+                />
+              ))}
             </g>
           )}
+
+          {/* country name labels for everyone involved in the flow */}
+          {(() => {
+            if (!showArcs || !pairData) return null;
+            const fwd = direction !== "ba";
+            const fromIso = fwd ? pairData.from : pairData.to;
+            const toIso = fwd ? pairData.to : pairData.from;
+            const ims = (
+              fwd ? pairData.indirect.from_to : pairData.indirect.to_from
+            ).slice(0, 3);
+            const items: { iso: string; color: string; size: number }[] = [
+              { iso: fromIso, color: COLOR_A, size: 10.5 },
+              { iso: toIso, color: COLOR_B, size: 10.5 },
+              ...ims.map((im) => ({
+                iso: im.intermediary,
+                color: "#b9cdd9",
+                size: 8.5,
+              })),
+            ];
+            return (
+              <g className="map-names" pointerEvents="none">
+                {items.map(({ iso, color, size }) => {
+                  const c = cent.get(iso);
+                  if (!c) return null;
+                  const p = projection!(c);
+                  if (!p) return null; // on the far side
+                  const isEnd = iso === fromIso || iso === toIso;
+                  return (
+                    <text
+                      key={iso}
+                      x={p[0]}
+                      y={p[1] + (isEnd ? 17 : 11) / k}
+                      textAnchor="middle"
+                      fontSize={size / k}
+                      className="map-name"
+                      fill={color}
+                      stroke="#05070b"
+                      strokeWidth={2.5 / k}
+                      paintOrder="stroke"
+                    >
+                      {names.get(iso) ?? iso}
+                    </text>
+                  );
+                })}
+              </g>
+            );
+          })()}
 
           {/* numbered badges for A and B — counter-scaled to stay readable */}
           {selA && cent.get(selA) && proj(cent.get(selA)!).x > 0 && (

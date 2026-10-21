@@ -1648,16 +1648,21 @@ details.products .val {
   filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.55));
 }
 
-.trade-arc.via {
-  stroke: #4fc3f7;
-  opacity: 0.5;
-  stroke-dasharray: 2 5;
-  animation: arcflow 2.4s linear infinite;
+.trade-underlay {
+  opacity: 0.16;
+  stroke-linecap: round;
 }
 
-@keyframes arcflow {
+.trade-arc.flight {
+  stroke-dasharray: 25 100;
+  animation: flightflow 3.6s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(79, 195, 247, 0.5));
+  opacity: 0.92;
+}
+
+@keyframes flightflow {
   to {
-    stroke-dashoffset: -34;
+    stroke-dashoffset: -125;
   }
 }
 
@@ -1674,6 +1679,10 @@ details.products .val {
   fill: var(--accent-2);
 }
 
+.node-i {
+  fill: #7fd0f7;
+}
+
 .node-pulse {
   fill: none;
   stroke-width: 1.5;
@@ -1688,6 +1697,10 @@ details.products .val {
 
 .pulse-b {
   stroke: var(--accent-2);
+}
+
+.pulse-i {
+  stroke: #4fc3f7;
 }
 
 @keyframes nodepulse {
