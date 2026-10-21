@@ -379,7 +379,6 @@ main {
 
 .below {
   display: flex;
-  align-items: flex-start;
   gap: 18px;
   padding: 14px 18px 30px;
   flex: 1;
