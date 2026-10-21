@@ -448,6 +448,10 @@ main {
   padding: 0 16px 26px;
 }
 
+.under .dir-tabs {
+  padding: 2px 0 10px;
+}
+
 /* the sankey sits on a solid navy panel like the reference */
 .flow-scroll {
   background: #0b101d;
