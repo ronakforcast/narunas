@@ -657,17 +657,17 @@ svg.map:active {
 }
 
 .flow-link {
-  fill-opacity: 0.42;
+  fill-opacity: 0.55;
   transition: fill-opacity 160ms ease;
 }
 
 .flow-link:hover {
-  fill-opacity: 0.88;
+  fill-opacity: 0.9;
 }
 
 .flow-link.direct {
-  fill-opacity: 0.88;
-  filter: drop-shadow(0 0 7px rgba(255, 140, 0, 0.35));
+  fill-opacity: 0.92;
+  filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.45));
 }
 
 .flow-empty {

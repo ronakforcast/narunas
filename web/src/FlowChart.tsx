@@ -34,7 +34,7 @@ const imColor = (i: number) => IM_COLORS[i % IM_COLORS.length];
 
 const W = 940;
 const H = 560;
-const MARGIN = { top: 56, right: 120, bottom: 16, left: 120 };
+const MARGIN = { top: 56, right: 195, bottom: 16, left: 150 };
 const TOP_N = 8;
 
 function flagEmoji(iso2: string | null): string {
@@ -121,6 +121,15 @@ export default function FlowChart({
       nodes: nodes.map((d) => ({ ...d })),
       links: links.map((d) => ({ ...d })),
     });
+    // the direct band is the hero — give it a visible minimum thickness
+    const dl = graph.links.find((l) => l.kind === "direct");
+    if (dl && dl.y0 != null && dl.y1 != null) {
+      const mid = (dl.y0 + dl.y1) / 2;
+      const w = Math.max(dl.y1 - dl.y0, 9);
+      dl.y0 = mid - w / 2;
+      dl.y1 = mid + w / 2;
+      dl.width = w;
+    }
     return { graph, kept, direct, colorOf };
   }, [pairData, direction, from, to]);
 
@@ -164,6 +173,10 @@ export default function FlowChart({
         {graph.links.map((l, i) => {
           const s = l.source as SankeyNode<Nodal, Linkal>;
           const t = l.target as SankeyNode<Nodal, Linkal>;
+          const c1 = colorOfNode(s.id);
+          const c2 = colorOfNode(t.id);
+          // blend only near the junction — full-length blends turn muddy
+          const blend = l.kind === "direct" ? 100 : 16;
           return (
             <linearGradient
               key={`g-${i}`}
@@ -174,8 +187,9 @@ export default function FlowChart({
               x2={t.x0 ?? 0}
               y2={0}
             >
-              <stop offset="0%" stopColor={colorOfNode(s.id)} />
-              <stop offset="100%" stopColor={colorOfNode(t.id)} />
+              <stop offset="0%" stopColor={c1} stopOpacity={0.9} />
+              <stop offset={`${blend}%`} stopColor={c2} stopOpacity={0.95} />
+              <stop offset="100%" stopColor={c2} stopOpacity={0.95} />
             </linearGradient>
           );
         })}
