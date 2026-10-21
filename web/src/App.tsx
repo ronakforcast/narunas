@@ -176,63 +176,94 @@ export default function App() {
       </header>
 
       <main>
-        {/* ---- the stage: full-width map + floating verdict ---- */}
-        <section className="stage">
-          <WorldMap
-            known={known}
-            names={names}
-            selA={selA}
-            selB={selB}
-            pairData={pairData}
-            onPick={pick}
-            direction={dir}
-            showArcs={!!pairData}
-          />
-          {pairData && (
-            <div className="banner-float">
-              <BalanceBanner
-                data={pairData}
-                nameA={names.get(pairData.from) ?? pairData.from}
-                nameB={names.get(pairData.to) ?? pairData.to}
-                flagA={flagOf(pairData.from)}
-                flagB={flagOf(pairData.to)}
-              />
-            </div>
-          )}
-        </section>
-
-        <div className="below">
-          {/* ---- flow hero ---- */}
-          <section className="hero">
+        <div className="deck">
+          {/* ---- left rail: the numbers and the flow story ---- */}
+          <aside className="rail">
             {pairData ? (
               <>
                 <SummaryCards pairData={pairData} names={names} />
-              <div className="dir-tabs" role="tablist">
-                <button
-                  role="tab"
-                  aria-selected={dir === "ab"}
-                  className={dir === "ab" ? "active a" : ""}
-                  onClick={() => setDir("ab")}
-                >
-                  {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={dir === "ba"}
-                  className={dir === "ba" ? "active b" : ""}
-                  onClick={() => setDir("ba")}
-                >
-                  {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
-                </button>
-              </div>
-              <div className="flow-scroll">
-                <FlowChart
-                  pairData={pairData}
-                  direction={dir}
-                  names={names}
-                  flags={flags}
+                <div className="dir-tabs" role="tablist">
+                  <button
+                    role="tab"
+                    aria-selected={dir === "ab"}
+                    className={dir === "ab" ? "active a" : ""}
+                    onClick={() => setDir("ab")}
+                  >
+                    {names.get(pairData.from)} <IconArrowRight width={13} height={13} /> {names.get(pairData.to)}
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={dir === "ba"}
+                    className={dir === "ba" ? "active b" : ""}
+                    onClick={() => setDir("ba")}
+                  >
+                    {names.get(pairData.to)} <IconArrowRight width={13} height={13} /> {names.get(pairData.from)}
+                  </button>
+                </div>
+                <div className="flow-scroll">
+                  <FlowChart
+                    pairData={pairData}
+                    direction={dir}
+                    names={names}
+                    flags={flags}
+                  />
+                </div>
+                {monthly && (
+                  <MonthlyCard
+                    data={monthly}
+                    nameA={names.get(pairData.from) ?? pairData.from}
+                    nameB={names.get(pairData.to) ?? pairData.to}
+                  />
+                )}
+              </>
+            ) : null}
+          </aside>
+
+          {/* ---- center: the globe ---- */}
+          <section className="stage">
+            <WorldMap
+              known={known}
+              names={names}
+              selA={selA}
+              selB={selB}
+              pairData={pairData}
+              onPick={pick}
+              direction={dir}
+              showArcs={!!pairData}
+            />
+            {pairData ? (
+              <div className="banner-float">
+                <BalanceBanner
+                  data={pairData}
+                  nameA={names.get(pairData.from) ?? pairData.from}
+                  nameB={names.get(pairData.to) ?? pairData.to}
+                  flagA={flagOf(pairData.from)}
+                  flagB={flagOf(pairData.to)}
                 />
               </div>
+            ) : (
+              <div className="empty-float">
+                <div className="hero-empty-inner">
+                  <h2>Pick two countries</h2>
+                  <p>
+                    See how much they trade directly, in goods and services,
+                    and how much of it travels through middleman countries.
+                    The lines on the globe show the routes. The TiVA numbers
+                    show where each economy's value actually ends up.
+                  </p>
+                  <p className="hint">
+                    <span className="step">1</span> pick country A ·{" "}
+                    <span className="step">2</span> pick country B, on the map
+                    or by typing the name in the slots above.
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* ---- right rail: rankings and the deep detail ---- */}
+          {pairData && (
+            <aside className="rail">
               <TopPartners
                 isoA={pairData.from}
                 isoB={pairData.to}
@@ -249,37 +280,6 @@ export default function App() {
                 flagA={flagOf(pairData.from)}
                 flagB={flagOf(pairData.to)}
               />
-              {monthly && (
-                <MonthlyCard
-                  data={monthly}
-                  nameA={names.get(pairData.from) ?? pairData.from}
-                  nameB={names.get(pairData.to) ?? pairData.to}
-                />
-              )}
-            </>
-          ) : (
-            <div className="hero-empty">
-              <div className="hero-empty-inner">
-                <h2>Pick two countries</h2>
-                <p>
-                  See how much they trade directly, in goods and services, and
-                  how much of it travels through middleman countries. Ribbons
-                  are sized by money. The TiVA numbers below show where each
-                  economy's value actually ends up.
-                </p>
-                <p className="hint">
-                  <span className="step">1</span> pick country A ·{" "}
-                  <span className="step">2</span> pick country B, on the map or
-                  by typing the name in the slots above.
-                </p>
-              </div>
-            </div>
-          )}
-          </section>
-
-          {/* ---- detail panel ---- */}
-          {pairData && (
-            <aside className="side">
               <PairPanel
                 data={pairData}
                 countries={countries}
