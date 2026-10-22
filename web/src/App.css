@@ -226,6 +226,8 @@ header h2 {
   font-size: 11px;
   font-family: var(--font-mono);
   letter-spacing: 0.5px;
+  margin-left: auto;
+  text-align: right;
 }
 
 .loading {
@@ -233,13 +235,49 @@ header h2 {
   font-size: 13px;
 }
 
-/* ---------- selection chips (in the header row) ---------- */
-.chips {
+/* ---------- country selector bar ---------- */
+.selector-bar {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 18px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line-soft);
   flex-wrap: wrap;
+}
+
+.sel-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: min(300px, 40vw);
+}
+
+.sel-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--muted);
+  padding-left: 2px;
+}
+
+.sel-group.a .sel-label {
+  color: var(--accent);
+}
+
+.sel-group.b .sel-label {
+  color: var(--accent-2);
+}
+
+.selector-bar .swap-btn {
+  margin-bottom: 2px;
+}
+
+.selector-bar .reset,
+.selector-bar .loading {
+  margin-bottom: 8px;
 }
 
 .chip-slot {
@@ -264,6 +302,17 @@ header h2 {
 
 .chip-slot.filled.b:focus-within {
   border-color: var(--accent-2);
+}
+
+/* empty slots invite input */
+.chip-slot:not(.filled) {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.chip-slot:not(.filled):focus-within {
+  border-style: solid;
+  border-color: var(--accent);
 }
 
 .chip-slot input {
@@ -1251,15 +1300,13 @@ details.products .val {
     padding: 8px 14px;
     gap: 8px;
   }
-  .chips {
-    padding: 0;
+  .selector-bar {
+    padding: 10px 14px 12px;
     gap: 8px;
-    margin-left: 0;
-    width: 100%;
   }
-  .chip-slot {
-    min-width: 0;
-    flex: 1 1 130px;
+  .sel-group {
+    width: calc(50% - 16px);
+    min-width: 140px;
   }
   .swap-btn {
     padding: 6px 10px;

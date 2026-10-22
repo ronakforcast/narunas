@@ -14,7 +14,6 @@ function flagOf(iso2: string | null): string {
 
 /** One of the two country inputs (slot A or slot B). */
 export default function CountrySlot({
-  tag,
   accent,
   placeholder,
   countries,
@@ -22,7 +21,6 @@ export default function CountrySlot({
   onPick,
   onClear,
 }: {
-  tag: string;
   accent: "a" | "b";
   placeholder: string;
   countries: Country[];
@@ -58,7 +56,6 @@ export default function CountrySlot({
 
   return (
     <div className={`chip-slot ${selected ? `filled ${accent}` : ""}`}>
-      <span className="slot-tag">{tag}</span>
       <input
         ref={ref}
         value={display}
