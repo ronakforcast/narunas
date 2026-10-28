@@ -1588,10 +1588,348 @@ details.products .val {
   margin: 8px 0 0;
 }
 
+/* ---------- product intelligence: search, drill, table ---------- */
+
+.pr-searchwrap {
+  position: relative;
+  margin-top: 12px;
+}
+
+.pr-search {
+  width: 100%;
+  background: rgba(5, 7, 11, 0.8);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pr-search::placeholder {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pr-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(255, 140, 0, 0.25),
+    inset 0 0 18px rgba(255, 140, 0, 0.04);
+}
+
+.pr-suggest {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: #070a10; /* fully opaque — table text must not bleed through */
+  border: 1px solid var(--line);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.pr-suggest li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.pr-suggest li:hover {
+  background: rgba(255, 140, 0, 0.09);
+}
+
+.pr-kind {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--accent-2);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  padding: 1px 5px;
+}
+
+.pr-kind.chapter {
+  color: var(--accent);
+  border-color: rgba(255, 140, 0, 0.4);
+}
+
+.pr-kind.heading {
+  color: #cfd8e3;
+  border-color: rgba(207, 216, 227, 0.35);
+}
+
+.pr-hitname {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-hitcode {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* product drill panel */
+.pr-drill {
+  position: relative;
+  margin-top: 12px;
+  padding: 12px 14px 10px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  background: rgba(0, 229, 255, 0.03);
+}
+
+.dr-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 3px;
+}
+
+.dr-close:hover {
+  color: var(--text);
+}
+
+.dr-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--muted);
+  padding-right: 26px;
+}
+
+.dr-step {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+}
+
+.dr-step.dr-now {
+  color: var(--text);
+  font-size: 11.5px;
+  font-family: var(--font-sans);
+}
+
+.dr-sep {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.dr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dr-stat {
+  border-left: 2px solid var(--line);
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dr-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.dr-value {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dr-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.dr-note {
+  margin: 10px 0 0;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+/* toolbar: direction tabs + sort control */
+.pr-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.pr-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.pr-tabs button {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.pr-tabs button.active.a {
+  color: var(--accent);
+  border-color: rgba(255, 140, 0, 0.45);
+  background: rgba(255, 140, 0, 0.07);
+}
+
+.pr-tabs button.active.b {
+  color: var(--accent-2);
+  border-color: rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.06);
+}
+
+.pr-sorts {
+  display: flex;
+}
+
+.pr-sorts button {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-left: none;
+  padding: 6px 11px;
+  cursor: pointer;
+}
+
+.pr-sorts button:first-child {
+  border-left: 1px solid var(--line);
+}
+
+.pr-sorts button.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--line);
+}
+
+/* product table rows (grid: rank, name, share, value, growth, price) */
+.pr-list li.pr-tr {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 40px 84px 66px 86px;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.pr-list li.pr-tr.focus {
+  background: rgba(0, 229, 255, 0.08);
+  box-shadow: inset 2px 0 0 var(--accent-2);
+}
+
+.pr-grow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pr-grow.up {
+  color: var(--ok);
+}
+
+.pr-grow.down {
+  color: var(--alert);
+}
+
+.pr-grow.new {
+  color: var(--accent-2);
+  opacity: 0.75;
+}
+
+.pr-price {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #cfd8e3;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pr-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.pr-coverage {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+}
+
+.show-all {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px dashed rgba(255, 140, 0, 0.45);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.show-all:hover {
+  background: rgba(255, 140, 0, 0.08);
+}
+
 @media (max-width: 720px) {
   .pr-grid {
     grid-template-columns: 1fr;
     gap: 14px;
+  }
+
+  .pr-list li.pr-tr {
+    grid-template-columns: 20px minmax(0, 1fr) 74px 58px;
+  }
+
+  .pr-list li.pr-tr .pr-share,
+  .pr-list li.pr-tr .pr-price {
+    display: none;
+  }
+
+  .dr-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pr-toolbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

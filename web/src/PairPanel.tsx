@@ -121,8 +121,8 @@ export default function PairPanel({
             ■ exports {nameB} → {nameA}
           </span>
         </div>
-        <p className="hint">Top products for each direction sit in the “Top
-          imports &amp; exports” card on the right.</p>
+        <p className="hint">Search or sort the lane in the “Product
+          intelligence” card below.</p>
       </section>
 
       {/* ---------- direct services ---------- */}

@@ -1,4 +1,5 @@
 import type { Country, PairData, MonthlyData, MonthlyPoint } from "./types";
+import { hs6Name } from "./hs";
 
 /**
  * Static data layer — works on GitHub Pages (no backend).
@@ -33,17 +34,16 @@ async function loadCountryFile(iso: string): Promise<Record<string, any>> {
   const res = await fetch(`./data/pairs/${iso}.json.gz`);
   if (!res.ok) throw new Error(`no data file for ${iso} (${res.status})`);
   let text: string;
-  if (
-    typeof DecompressionStream !== "undefined" &&
-    res.body &&
-    (res.headers.get("content-type")?.includes("gzip") || true)
-  ) {
-    // our files are always .gz; fall back to plain JSON if undecompressable
+  if (typeof DecompressionStream !== "undefined" && res.body) {
+    // our files are raw gzip. Some transports (vite dev, decoding proxies)
+    // already decompress in flight — in that case the manual gunzip fails
+    // mid-stream and we read the untouched clone as plain text instead.
+    const plain = res.clone();
     try {
       const stream = res.body.pipeThrough(new DecompressionStream("gzip"));
       text = await new Response(stream).text();
     } catch {
-      text = await res.text();
+      text = await plain.text();
     }
   } else {
     text = await res.text();
@@ -69,19 +69,35 @@ function adaptPair(
       from_to: g.ft ?? [],
       to_from: g.tf ?? [],
       from_to_products: (g.fp ?? []).map(
-        ([hs6, description, value_musd]: [string, string, number]) => ({
+        ([hs6, value_musd, prev_musd, qty_t]: [
+          string,
+          number,
+          number | null,
+          number | null,
+        ]) => ({
           hs6,
-          description,
+          description: hs6Name(hs6),
           value_musd,
+          prev_musd: prev_musd ?? null,
+          qty_t: qty_t ?? null,
         }),
       ),
       to_from_products: (g.tp ?? []).map(
-        ([hs6, description, value_musd]: [string, string, number]) => ({
+        ([hs6, value_musd, prev_musd, qty_t]: [
+          string,
+          number,
+          number | null,
+          number | null,
+        ]) => ({
           hs6,
-          description,
+          description: hs6Name(hs6),
           value_musd,
+          prev_musd: prev_musd ?? null,
+          qty_t: qty_t ?? null,
         }),
       ),
+      from_to_n: g.fn ?? null,
+      to_from_n: g.tn ?? null,
     },
     services: {
       years: s.y ?? [],

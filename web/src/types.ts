@@ -9,6 +9,10 @@ export interface ProductRef {
   hs4?: string;
   description?: string | null;
   value_musd: number;
+  /** previous-year value for growth (USD millions), null when absent */
+  prev_musd?: number | null;
+  /** quantity in metric tons, null when unreported by the source */
+  qty_t?: number | null;
 }
 
 export interface Intermediary {
@@ -27,6 +31,9 @@ export interface PairData {
     to_from: number[];
     from_to_products: ProductRef[];
     to_from_products: ProductRef[];
+    /** total HS6 products traded in each direction's lane */
+    from_to_n?: number | null;
+    to_from_n?: number | null;
   };
   services: {
     years: number[];

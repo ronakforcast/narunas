@@ -27,8 +27,11 @@ const ltuFile = {
       y: [2023, 2024],
       ft: [140, 148.7],
       tf: [230, 243.4],
-      fp: [["220300", "Beer: made from malt", 10]],
+      // [hs6, value_2024, value_2023, qty_tons]
+      fp: [["220300", 10, 8, 10000]],
       tp: [],
+      fn: 1,
+      tn: 0,
     },
     s: { y: [2023, 2024], ft: [124.1, 132.0], tf: [99.6, 117.9] },
     i: [["DEU", 1310.1, [["3004", 60]]]],
@@ -214,26 +217,30 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(tp!.textContent).toContain("$49B");
     });
 
-    // top imports & exports: what each side sells the other
+    // product intelligence: what each side sells the other
     await waitFor(() => {
       const pr = document.querySelector(".pr-card");
       expect(pr).not.toBeNull();
-      expect(pr!.textContent).toContain("Top imports & exports");
-      expect(pr!.textContent).toContain(
-        "Lithuania's exports · India's imports",
-      );
-      expect(pr!.textContent).toContain(
-        "India's exports · Lithuania's imports",
-      );
+      expect(pr!.textContent).toContain("Product intelligence");
+      // search box for the product finder
+      expect(pr!.querySelector(".pr-search")).not.toBeNull();
+      // direction tab for the active side (A -> B exports)
+      expect(pr!.textContent).toContain("Lithuania");
+      expect(pr!.textContent).toContain("India");
+      // product row: name (joined from the HS asset), value, growth, price
       expect(pr!.textContent).toContain("Beer: made from malt");
       expect(pr!.textContent).toContain("$10.0M");
-      // direct + indirect subsections and the csv export button
-      const subs = document.querySelectorAll(".pr-sub");
-      expect(subs.length).toBe(2);
-      expect(subs[0].textContent).toContain("direct");
-      expect(subs[1].textContent).toContain("indirect");
+      expect(pr!.textContent).toContain("▲25%");
+      expect(pr!.textContent).toContain("$1.00/kg");
+      // coverage line reflects the lane counts
+      expect(pr!.textContent).toContain("top 1 of 1 products");
+      // sort controls + csv export button
+      expect(pr!.querySelectorAll(".pr-sorts button").length).toBe(3);
       expect(document.querySelector(".csv-btn")).not.toBeNull();
       // indirect subsection aggregates the fixture intermediary product
+      const subs = document.querySelectorAll(".pr-sub");
+      expect(subs.length).toBe(1);
+      expect(subs[0].textContent).toContain("indirect");
       expect(pr!.textContent).toContain("Medicaments");
     });
   });

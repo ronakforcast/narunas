@@ -34,6 +34,15 @@ export default function CountrySlot({
   const ref = useRef<HTMLInputElement | null>(null);
 
   const needle = q.trim().toLowerCase();
+  // rank: exact ISO3 match first ("IND" -> India, not "Br. Indian Ocean
+  // Terr."), then names starting with the query, then names containing it
+  const rankOf = (c: Country): number => {
+    const name = c.name.toLowerCase();
+    if (c.iso3.toLowerCase() === needle) return 0;
+    if (name.startsWith(needle)) return 1;
+    if (name.includes(needle)) return 2;
+    return 3;
+  };
   const matches =
     needle.length < 1
       ? []
@@ -43,6 +52,7 @@ export default function CountrySlot({
               c.name.toLowerCase().includes(needle) ||
               c.iso3.toLowerCase() === needle,
           )
+          .sort((a, b) => rankOf(a) - rankOf(b) || a.name.localeCompare(b.name))
           .slice(0, 8);
 
   function choose(c: Country) {
