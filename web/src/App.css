@@ -491,6 +491,11 @@ main {
   pointer-events: none;
 }
 
+/* the hero now contains inputs — it must accept real pointer events */
+.hero-empty-inner {
+  pointer-events: auto;
+}
+
 /* full-width sections below the deck */
 .under {
   flex: none;
@@ -1630,8 +1635,9 @@ details.products .val {
   background: #070a10; /* fully opaque — table text must not bleed through */
   border: 1px solid var(--line);
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85);
-  max-height: 320px;
+  max-height: 236px;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .pr-suggest li {
@@ -1930,6 +1936,338 @@ details.products .val {
   .pr-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* ---------- product-first global view (landing state) ---------- */
+
+.hero-product-search {
+  margin-top: 18px;
+  text-align: left;
+}
+
+.hero-ps-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--accent);
+  margin: 0 0 5px;
+}
+
+.pg-float {
+  /* wider than the hero — the global view is a data panel; and it must
+     accept pointer events (empty-float disables them for the map's sake) */
+  width: min(880px, calc(100% - 40px));
+  max-height: calc(100% - 30px);
+  overflow-y: auto;
+  pointer-events: none;
+}
+
+.pg-card {
+  pointer-events: auto;
+}
+
+.pg-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 18px 20px 14px;
+  backdrop-filter: blur(6px);
+}
+
+.pg-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: 1px solid var(--line-soft);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.pg-close:hover {
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.pg-head h2 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+  padding-right: 34px;
+  color: var(--text);
+}
+
+.pg-crumb {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.pg-crumb-sub {
+  opacity: 0.8;
+}
+
+.pg-world {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 140, 0, 0.04);
+}
+
+.pg-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pg-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.pg-value {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-growth {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.pg-growth.up {
+  color: var(--ok);
+}
+
+.pg-growth.down {
+  color: var(--alert);
+}
+
+.pg-cols {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.pg-col h3 {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  margin: 0 0 6px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+  color: var(--text);
+}
+
+.pg-col:first-child h3 {
+  color: var(--accent-2);
+}
+
+.pg-col:last-child h3 {
+  color: var(--accent);
+}
+
+.pg-action {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: lowercase;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.pg-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pg-list li {
+  display: grid;
+  grid-template-columns: 20px 22px minmax(0, 1fr) 92px 38px 58px 74px;
+  align-items: baseline;
+  gap: 7px;
+  padding: 5px 6px 5px 4px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.pg-list li:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.pg-list li:hover {
+  background: #333;
+}
+
+.pg-list li.ex {
+  grid-template-columns: 20px 22px minmax(0, 1fr) 58px 74px;
+}
+
+.pg-list .pg-rank {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-sup {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.pg-share {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-g {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pg-g.up {
+  color: var(--ok);
+}
+
+.pg-g.down {
+  color: var(--alert);
+}
+
+.pg-g.new {
+  color: var(--accent-2);
+  opacity: 0.75;
+}
+
+.pg-g.growonly {
+  display: none;
+}
+
+.pg-flag {
+  font-size: 13px;
+}
+
+.pg-v {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+.pg-children {
+  margin-top: 14px;
+}
+
+.pg-children h3 {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.pg-children ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.pg-child {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.pg-child:hover {
+  border-color: var(--accent-2);
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.pg-children li.focus .pg-child {
+  border-color: var(--accent-2);
+  background: rgba(0, 229, 255, 0.09);
+}
+
+.pg-child-name {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pg-child-v {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--accent);
+}
+
+.pg-child-im {
+  font-size: 11px;
+}
+
+.pg-hint {
+  margin: 14px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .pg-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .pg-list li {
+    grid-template-columns: 20px minmax(0, 1fr) 52px 70px;
+  }
+
+  .pg-list li.ex {
+    grid-template-columns: 20px minmax(0, 1fr) 52px 70px;
+  }
+
+  .pg-list .pg-sup,
+  .pg-list .pg-share {
+    display: none;
+  }
+
+  .pg-world {
+    gap: 18px;
   }
 }
 

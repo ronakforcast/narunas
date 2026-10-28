@@ -33,7 +33,7 @@ BACI_ZIP = RAW / "BACI_HS12_V202601.zip"
 TIVA_CSV = RAW / "tiva_main.csv"
 BATIS_ZIP = RAW / "batis_data_BPM6.zip"
 
-HS6_KEEP_YEARS = {2024}  # persist HS6 detail only for the latest year
+HS6_KEEP_YEARS = {2023, 2024}  # persist HS6 detail for growth (YoY) + pricing
 BACI_K_TO_M = 1000.0  # BACI values are thousand USD -> store USD millions
 
 SCHEMA = """
@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS direct_goods (
     PRIMARY KEY (year, exporter, importer)) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS idx_dg_pair ON direct_goods (exporter, importer);
 CREATE TABLE IF NOT EXISTS flows_goods_hs6 (
-    year INTEGER, exporter TEXT, importer TEXT, hs6 TEXT, value REAL);
+    year INTEGER, exporter TEXT, importer TEXT, hs6 TEXT, value REAL,
+    qty REAL);
 CREATE INDEX IF NOT EXISTS idx_hs6_pair ON flows_goods_hs6 (exporter, importer);
 CREATE TABLE IF NOT EXISTS direct_services (
     year INTEGER, exporter TEXT, importer TEXT, value REAL,
@@ -90,7 +91,7 @@ def ingest_baci(conn: sqlite3.Connection) -> None:
             reader = pd.read_csv(
                 z.open(name),
                 chunksize=2_000_000,
-                usecols=["t", "i", "j", "k", "v"],
+                usecols=["t", "i", "j", "k", "v", "q"],
                 dtype={"k": str},
             )
             for chunk in reader:
@@ -103,6 +104,7 @@ def ingest_baci(conn: sqlite3.Connection) -> None:
                 for (i, j), v in g.items():
                     totals[(i, j)] = totals.get((i, j), 0.0) + float(v)
                 if year in HS6_KEEP_YEARS:
+                    # q: quantity in metric tons (0/NaN when not reported)
                     hs6_batch.extend(
                         (
                             year,
@@ -110,9 +112,11 @@ def ingest_baci(conn: sqlite3.Connection) -> None:
                             code_to_iso3[j],
                             k,
                             float(v) / BACI_K_TO_M,
+                            0.0 if pd.isna(qq) else round(float(qq), 3),
                         )
-                        for i, j, k, v in zip(
-                            chunk["i"], chunk["j"], chunk["k"], chunk["v"]
+                        for i, j, k, v, qq in zip(
+                            chunk["i"], chunk["j"], chunk["k"],
+                            chunk["v"], chunk["q"],
                         )
                     )
             rows = [
@@ -125,7 +129,8 @@ def ingest_baci(conn: sqlite3.Connection) -> None:
             if hs6_batch:
                 log(f"  inserting {len(hs6_batch):,} HS6 rows for {year} ...")
                 conn.executemany(
-                    "INSERT INTO flows_goods_hs6 VALUES (?,?,?,?,?)", hs6_batch
+                    "INSERT OR REPLACE INTO flows_goods_hs6 "
+                    "VALUES (?,?,?,?,?,?)", hs6_batch
                 )
             conn.commit()
             log(

@@ -57,6 +57,37 @@ export interface MonthlyPoint {
   value_meur: number;
 }
 
+/** Product-first global view (per HS4 heading or chapter file). */
+export interface ProductMarket {
+  iso3: string;
+  v24: number; // imports, USD millions
+  v23: number;
+  qty24: number; // metric tons
+  share: number; // % of world
+  suppliers: { iso3: string; v24: number }[]; // top direct sources
+}
+
+export interface ProductExporter {
+  iso3: string;
+  v24: number;
+  v23: number;
+}
+
+export interface ProductChild {
+  code: string; // hs6 (heading files) or hs4 (chapter files)
+  v24: number;
+  importers: { iso3: string; v24: number }[];
+}
+
+export interface ProductGlobalData {
+  code: string;
+  kind: "hs4" | "chapter";
+  world: { v24: number; v23: number };
+  importers: ProductMarket[];
+  exporters: ProductExporter[];
+  children: ProductChild[];
+}
+
 export interface MonthlyData {
   available: boolean;
   currency?: string;

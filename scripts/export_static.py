@@ -9,12 +9,18 @@ Writes web/public/data/:
 Compact per-partner shape (adapted to PairData in the frontend):
   {
     "g": {"y": [years], "ft": [A->B values], "tf": [B->A values],
-           "fp": [[hs6, desc, value], ...], "tp": [[hs6, desc, value], ...]},
+           "fp": [[hs6, v24, v23, qty_t], ...],   // top-100 by v24, no desc
+           "tp": [[hs6, v24, v23, qty_t], ...],
+           "fn": <total products in lane A->B>,
+           "tn": <total products in lane B->A>},
     "s": {"y": [...], "ft": [...], "tf": [...]},
     "i": [[iso3, estimate, [[hs4, value], ...]], ...],       // A->B indirect
     "ir": [[iso3, estimate, [...]], ...],                     // B->A indirect
     "t": {"years": [...], "FFD_DVA": [...], ...}             // TiVA measures
   }
+
+Descriptions are NOT exported — the frontend joins them from the bundled
+web/src/assets/hs6-names.json (single source, halves the file size).
 
 Usage: python3 scripts/export_static.py
 """
@@ -31,7 +37,8 @@ DB = ROOT / "data" / "trade.db"
 OUT = ROOT / "web" / "public" / "data"
 
 INDIRECT_YEAR = 2024
-N_PRODUCTS = 10
+GROWTH_YEAR = 2023          # previous year for growth (in pair entries)
+N_PRODUCTS = 100
 N_INDIRECT = 10
 N_INDIRECT_PRODUCTS = 3
 
@@ -51,6 +58,7 @@ def indexes(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_tiva_d ON tiva (dest);
         CREATE INDEX IF NOT EXISTS idx_ig_e ON indirect_goods (exporter);
         CREATE INDEX IF NOT EXISTS idx_ig_i ON indirect_goods (importer);
+        CREATE INDEX IF NOT EXISTS idx_hs6_e ON flows_goods_hs6 (exporter, year);
         CREATE INDEX IF NOT EXISTS idx_hs6_i ON flows_goods_hs6 (importer, year);
         """
     )
@@ -86,22 +94,43 @@ def build_country(conn: sqlite3.Connection, iso: str) -> dict:
             "tf": [round(tf_data.get(y) or 0.0, 1) for y in years],
         }
 
-    # top direct products (2024, both directions)
-    for e, i, hs6, desc, v in conn.execute(
-        "SELECT h.exporter, h.importer, h.hs6, p.description, h.value "
-        "FROM flows_goods_hs6 h LEFT JOIN products p ON p.hs6 = h.hs6 "
-        "WHERE h.year=? AND (h.exporter=? OR h.importer=?) "
-        "ORDER BY h.value DESC",
-        (INDIRECT_YEAR, iso, iso),
+    # top direct products (2024 value + 2023 value + 2024 quantity, both
+    # directions, single pass over both years; descriptions joined in the
+    # frontend from the bundled hs6-names asset)
+    # per (partner, direction) -> {hs6: [v24, v23, q24]}
+    lanes: dict[tuple[str, str], dict[str, list]] = {}
+    for y, e, i, hs6, v, q in conn.execute(
+        "SELECT year, exporter, importer, hs6, value, qty "
+        "FROM flows_goods_hs6 "
+        "WHERE (exporter=? OR importer=?) AND year IN (?, ?)",
+        (iso, iso, INDIRECT_YEAR, GROWTH_YEAR),
     ):
         if e == iso:
-            s = slot(i)
-            g = s.setdefault("g", {})
-            g.setdefault("fp", []).append([hs6, desc, round(v, 1)])
+            key = (i, "fp")   # iso -> partner
         else:
-            s = slot(e)
-            g = s.setdefault("g", {})
-            g.setdefault("tp", []).append([hs6, desc, round(v, 1)])
+            key = (e, "tp")   # partner -> iso
+        lane = lanes.setdefault(key, {})
+        cell = lane.setdefault(hs6, [0.0, 0.0, 0.0])
+        if y == INDIRECT_YEAR:
+            cell[0] = v or 0.0
+            cell[2] = q or 0.0
+        else:
+            cell[1] = v or 0.0
+    for (partner, side), lane in lanes.items():
+        s = slot(partner)
+        g = s.setdefault("g", {})
+        ranked = sorted(
+            (
+                (cell[0], hs6, cell[1], cell[2])
+                for hs6, cell in lane.items()
+            ),
+            reverse=True,
+        )
+        g[side] = [
+            [hs6, round(v24, 1), round(v23, 1), round(q24, 1)]
+            for v24, hs6, v23, q24 in ranked[:N_PRODUCTS]
+        ]
+        g["fn" if side == "fp" else "tn"] = len(lane)
     for p, s in partners.items():
         g = s.get("g", {})
         g["fp"] = (g.get("fp") or [])[:N_PRODUCTS]

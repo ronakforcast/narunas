@@ -11,6 +11,8 @@ const countries: Country[] = [
   { iso3: "IND", name: "India", iso2: "IN" },
   { iso3: "RUS", name: "Russia", iso2: "RU" },
   { iso3: "DEU", name: "Germany", iso2: "DE" },
+  { iso3: "USA", name: "United States", iso2: "US" },
+  { iso3: "CHE", name: "Switzerland", iso2: "CH" },
 ];
 
 const countriesDoc = {
@@ -21,7 +23,15 @@ const countriesDoc = {
 };
 
 // compact static pair file for Lithuania (partners keyed by iso3)
-const ltuFile = {
+const ltuFile: Record<
+  string,
+  {
+    g: Record<string, unknown>;
+    s?: Record<string, unknown>;
+    i?: unknown[];
+    ir?: unknown[];
+  }
+> = {
   IND: {
     g: {
       y: [2023, 2024],
@@ -37,6 +47,21 @@ const ltuFile = {
     i: [["DEU", 1310.1, [["3004", 60]]]],
     ir: [["DEU", 500.0, [["3004", 20]]]],
   },
+  // USA partner for the product-first funnel test
+  USA: {
+    g: {
+      y: [2023, 2024],
+      ft: [140, 148.7],
+      tf: [230, 243.4],
+      fp: [["220300", 10, 8, 10000]],
+      tp: [],
+      fn: 1,
+      tn: 0,
+    },
+    s: { y: [2023, 2024], ft: [124.1, 132.0], tf: [99.6, 117.9] },
+    i: [],
+    ir: [],
+  },
 };
 
 // compact static file for India: several partners so the ranking has content
@@ -50,6 +75,28 @@ const indFile = {
   DEU: {
     g: { y: [2023, 2024], ft: [8000, 8500], tf: [12000, 13000], fp: [], tp: [] },
   },
+};
+
+// USA as an LTU partner (for the product-first funnel test) — declared above
+
+// global product file for heading 3004 (medicaments)
+const productFile = {
+  code: "3004",
+  kind: "hs4",
+  w: [492152.3, 469084.8],
+  im: [
+    [
+      "USA",
+      94512.3,
+      90000.0,
+      1200.5,
+      19.2,
+      [["CHE", 40000.0], ["IND", 30000.0], ["IRL", 20000.0]],
+    ],
+    ["CHE", 47301.1, 45000.0, 900.2, 9.6, [["SVN", 20000.0]]],
+  ],
+  ex: [["DEU", 64700.9, 60000.0], ["CHE", 44269.9, 41000.0]],
+  c: [["300490", 400667.5, [["USA", 90000.0], ["CHE", 30000.0]]]],
 };
 
 // SDMX-JSON like Eurostat returns
@@ -80,6 +127,12 @@ describe("App integration: static data flow (Lithuania and India)", () => {
         if (url.includes("data/pairs/IND.json.gz")) {
           return new Response(
             gzipSync(Buffer.from(JSON.stringify(indFile))),
+            { status: 200 },
+          );
+        }
+        if (url.includes("data/products/3004.json.gz")) {
+          return new Response(
+            gzipSync(Buffer.from(JSON.stringify(productFile))),
             { status: 200 },
           );
         }
@@ -243,6 +296,71 @@ describe("App integration: static data flow (Lithuania and India)", () => {
       expect(subs[0].textContent).toContain("indirect");
       expect(pr!.textContent).toContain("Medicaments");
     });
+  });
+
+  it("starts from a product: search, global view, market, pair", async () => {
+    render(createElement(App));
+
+    await waitFor(
+      () => {
+        expect(findCountryPath("LTU")).not.toBeNull();
+      },
+      { timeout: 3000 },
+    );
+
+    // type a product in the hero search and pick the (exact) heading hit
+    const input = document.querySelector(".hero-product-search input");
+    expect(input).not.toBeNull();
+    const setter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value",
+    )!.set!;
+    setter.call(input, "3004");
+    input!.dispatchEvent(new Event("input", { bubbles: true }));
+    await waitFor(() => {
+      expect(document.querySelector(".pr-suggest")).not.toBeNull();
+    });
+    document
+      .querySelector(".pr-suggest li")!
+      .dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+
+    // global product view renders from the mocked product file
+    await waitFor(() => {
+      const pg = document.querySelector(".pg-card");
+      expect(pg).not.toBeNull();
+      expect(pg!.textContent).toContain("Medicaments");
+      expect(pg!.textContent).toContain("HS 3004");
+      expect(pg!.textContent).toContain("$492B");
+      expect(pg!.textContent).toContain("▲4.9%");
+      // importer markets with values, share and suppliers
+      expect(pg!.textContent).toContain("United States");
+      expect(pg!.textContent).toContain("$95B");
+      expect(pg!.textContent).toContain("19.2%");
+      expect(pg!.textContent).toContain("from");
+      // exporters and the hs6 children drill
+      expect(pg!.textContent).toContain("Germany");
+      expect(pg!.textContent).toContain("$65B");
+    });
+
+    // click the top importing market -> becomes country B
+    const market = document.querySelector(".pg-list li");
+    expect(market!.textContent).toContain("United States");
+    fireEvent.click(market!);
+    await waitFor(() => {
+      expect(document.querySelector(".country.sel-b")).not.toBeNull();
+      expect(document.querySelector(".status")!.textContent).toContain(
+        "is your market B",
+      );
+    });
+
+    // pick A on the map -> the pair loads (product-first funnel complete)
+    fireEvent.click(findCountryPath("LTU")!);
+    await waitFor(() => {
+      expect(document.querySelector(".pr-card")).not.toBeNull();
+      expect(document.querySelector(".country.sel-a")).not.toBeNull();
+    });
+    // the product view is replaced by the pair view
+    expect(document.querySelector(".pg-card")).toBeNull();
   });
 
   it("ignores clicking a country that is already selected", async () => {

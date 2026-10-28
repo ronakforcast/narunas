@@ -11,7 +11,8 @@ import {
   type ProductSort,
   type HierarchyNode,
 } from "./products";
-import { searchProducts, type SearchHit } from "./productSearch";
+import type { SearchHit } from "./productSearch";
+import ProductSearchInput from "./ProductSearchInput";
 import { hs4Name, chapterTitle } from "./hs";
 
 const PREVIEW_ROWS = 10;
@@ -342,7 +343,6 @@ export default function TopProducts({
   const [tab, setTab] = useState<"ab" | "ba">("ab");
   const [sort, setSort] = useState<ProductSort>("value");
   const [showAll, setShowAll] = useState(false);
-  const [query, setQuery] = useState("");
   const [focus, setFocus] = useState<SearchHit | null>(null);
 
   const latest = pairData.goods.years.length - 1;
@@ -363,11 +363,6 @@ export default function TopProducts({
   const coveredPct = laneTotal > 0
     ? Math.round((products.reduce((s, p) => s + p.value_musd, 0) / laneTotal) * 100)
     : null;
-
-  const suggestions = useMemo(
-    () => (query.trim().length >= 2 ? searchProducts(query) : []),
-    [query],
-  );
 
   const nameOf = (iso: string) => (iso === pairData.from ? nameA : nameB);
 
@@ -407,46 +402,10 @@ export default function TopProducts({
       </h3>
 
       {/* ---- search: find any product, heading or chapter ---- */}
-      <div className="pr-searchwrap">
-        <input
-          className="pr-search"
-          type="text"
-          value={query}
-          placeholder="find a product in this lane — name or HS code (try “medicine” or “8542”)…"
-          aria-label="find a product"
-          onChange={(e) => {
-            setQuery(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && suggestions.length > 0) {
-              setFocus(suggestions[0]);
-              setQuery(suggestions[0].name);
-            }
-            if (e.key === "Escape") {
-              setQuery("");
-              setFocus(null);
-            }
-          }}
-        />
-        {query.trim().length >= 2 && suggestions.length > 0 && (
-          <ul className="pr-suggest">
-            {suggestions.map((s) => (
-              <li
-                key={`${s.kind}-${s.code}`}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setFocus(s);
-                  setQuery(s.name);
-                }}
-              >
-                <span className={`pr-kind ${s.kind}`}>{s.kind === "chapter" ? "CH" : s.kind === "heading" ? "HS4" : "HS6"}</span>
-                <span className="pr-hitname">{s.name}</span>
-                <span className="pr-hitcode">{s.code}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <ProductSearchInput
+        placeholder="find a product in this lane — name or HS code (try “medicine” or “8542”)…"
+        onPick={setFocus}
+      />
 
       {focus && (
         <DrillPanel hit={focus} pairData={pairData} onClose={() => setFocus(null)} />

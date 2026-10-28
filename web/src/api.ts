@@ -1,4 +1,13 @@
-import type { Country, PairData, MonthlyData, MonthlyPoint } from "./types";
+import type {
+  Country,
+  PairData,
+  MonthlyData,
+  MonthlyPoint,
+  ProductGlobalData,
+  ProductMarket,
+  ProductExporter,
+  ProductChild,
+} from "./types";
 import { hs6Name } from "./hs";
 
 /**
@@ -33,22 +42,7 @@ async function loadCountryFile(iso: string): Promise<Record<string, any>> {
   if (cached) return cached;
   const res = await fetch(`./data/pairs/${iso}.json.gz`);
   if (!res.ok) throw new Error(`no data file for ${iso} (${res.status})`);
-  let text: string;
-  if (typeof DecompressionStream !== "undefined" && res.body) {
-    // our files are raw gzip. Some transports (vite dev, decoding proxies)
-    // already decompress in flight — in that case the manual gunzip fails
-    // mid-stream and we read the untouched clone as plain text instead.
-    const plain = res.clone();
-    try {
-      const stream = res.body.pipeThrough(new DecompressionStream("gzip"));
-      text = await new Response(stream).text();
-    } catch {
-      text = await plain.text();
-    }
-  } else {
-    text = await res.text();
-  }
-  const data = JSON.parse(text) as Record<string, any>;
+  const data = JSON.parse(await readGz(res)) as Record<string, any>;
   countryCache.set(iso, data);
   return data;
 }
@@ -294,6 +288,80 @@ async function fetchBingNews(
   } catch {
     return null;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Product-first global view — per-heading / chapter files from /data/products
+// ---------------------------------------------------------------------------
+
+const productCache = new Map<string, ProductGlobalData>();
+
+async function readGz(res: Response): Promise<string> {
+  if (typeof DecompressionStream !== "undefined" && res.body) {
+    const plain = res.clone();
+    try {
+      const stream = res.body.pipeThrough(new DecompressionStream("gzip"));
+      return await new Response(stream).text();
+    } catch {
+      return await plain.text();
+    }
+  }
+  return res.text();
+}
+
+/** Global data for a heading (4-digit) or chapter (2-digit) code. */
+export async function fetchProductFile(
+  code: string,
+): Promise<ProductGlobalData> {
+  const key = code;
+  const cached = productCache.get(key);
+  if (cached) return cached;
+  const res = await fetch(`./data/products/${key}.json.gz`);
+  if (!res.ok) throw new Error(`no product file for ${key} (${res.status})`);
+  const doc = JSON.parse(await readGz(res)) as Record<string, any>;
+  const data: ProductGlobalData = {
+    code: doc.code ?? key,
+    kind: doc.kind === "chapter" ? "chapter" : "hs4",
+    world: {
+      v24: doc.w?.[0] ?? 0,
+      v23: doc.w?.[1] ?? 0,
+    },
+    importers: (doc.im ?? []).map(
+      ([iso3, v24, v23, qty24, share, sup]: [
+        string,
+        number,
+        number,
+        number,
+        number,
+        [string, number][],
+      ]) => ({
+        iso3,
+        v24,
+        v23,
+        qty24,
+        share,
+        suppliers: (sup ?? []).map(([iso3, v24]: [string, number]) => ({
+          iso3,
+          v24,
+        })),
+      }),
+    ) as ProductMarket[],
+    exporters: (doc.ex ?? []).map(
+      ([iso3, v24, v23]: [string, number, number]) => ({ iso3, v24, v23 }),
+    ) as ProductExporter[],
+    children: (doc.c ?? []).map(
+      ([code, v24, imps]: [string, number, [string, number][]]) => ({
+        code,
+        v24,
+        importers: (imps ?? []).map(([iso3, v24]: [string, number]) => ({
+          iso3,
+          v24,
+        })),
+      }),
+    ) as ProductChild[],
+  };
+  productCache.set(key, data);
+  return data;
 }
 
 // ---------------------------------------------------------------------------

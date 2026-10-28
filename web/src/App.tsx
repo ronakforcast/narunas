@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import WorldMap from "./WorldMap";
 import FlowChart from "./FlowChart";
 import PairPanel from "./PairPanel";
-import { fetchCountries, fetchPair, fetchMonthly } from "./api";
+import { fetchCountries, fetchPair, fetchMonthly, fetchProductFile } from "./api";
 import { fmtUSD } from "./format";
 import { IconSwap, IconClose, IconArrowRight } from "./icons";
 import MonthlyCard from "./MonthlyCard";
@@ -11,7 +11,14 @@ import TopPartners from "./TopPartners";
 import TopProducts from "./TopProducts";
 import NewsCard from "./NewsCard";
 import CountrySlot from "./CountrySlot";
-import type { Country, PairData, MonthlyData } from "./types";
+import ProductGlobal from "./ProductGlobal";
+import ProductSearchInput from "./ProductSearchInput";
+import type { SearchHit } from "./productSearch";
+import type { Country, PairData, MonthlyData, ProductGlobalData } from "./types";
+import { hs4Name, hs6Name } from "./hs";
+
+const hs4Label = (code: string): string => hs4Name(code) ?? `HS ${code}`;
+const hs6Label = (code: string): string => hs6Name(code) ?? `HS ${code}`;
 
 export default function App() {
   const [countries, setCountries] = useState<Country[]>([]);
@@ -22,6 +29,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dir, setDir] = useState<"ab" | "ba">("ab");
+  // product-first mode: a product selected from the landing search
+  const [productHit, setProductHit] = useState<SearchHit | null>(null);
+  const [productData, setProductData] = useState<ProductGlobalData | null>(null);
 
   useEffect(() => {
     fetchCountries()
@@ -61,6 +71,9 @@ export default function App() {
       const data = await fetchPair(a, b);
       setPairData(data);
       setDir("ab");
+      // the pair view owns product context from here (its own search)
+      setProductHit(null);
+      setProductData(null);
       // freshness layer: best-effort, never blocks the pair
       fetchMonthly(iso2Of(a), iso2Of(b)).then(setMonthly);
     } catch (e) {
@@ -71,17 +84,44 @@ export default function App() {
     }
   }
 
+  /** Load the global view for a product/heading/chapter hit. */
+  async function loadProduct(hit: SearchHit) {
+    setProductHit(hit);
+    setProductData(null);
+    setError(null);
+    const code = hit.kind === "chapter" ? hit.code : hit.code.slice(0, 4);
+    try {
+      setProductData(await fetchProductFile(code));
+    } catch (e) {
+      setError(String(e));
+      setProductHit(null);
+    }
+  }
+
   function pick(iso3: string) {
     setError(null);
     if (iso3 === selA || iso3 === selB) return; // ignore re-clicking a chosen country
-    if (!selA || (selA && selB)) {
+    if (!selA && !selB) {
+      setSelA(iso3);
+      setPairData(null);
+      return;
+    }
+    if (!selA && selB) {
+      // B was pre-set (e.g. a target market from the product view)
+      setSelA(iso3);
+      loadPair(iso3, selB);
+      return;
+    }
+    if (selA && selB) {
       setSelA(iso3);
       setSelB(null);
       setPairData(null);
       return;
     }
-    setSelB(iso3);
-    loadPair(selA, iso3);
+    if (selA && !selB) {
+      setSelB(iso3);
+      loadPair(selA, iso3);
+    }
   }
 
   function replaceSlot(slot: "a" | "b", iso3: string | null) {
@@ -119,17 +159,21 @@ export default function App() {
     setSelB(null);
     setPairData(null);
     setError(null);
+    setProductHit(null);
+    setProductData(null);
   }
 
   const status = error
     ? `⚠ ${error}`
-    : !selA
-      ? "Pick country A on the map, or type its name in the A slot"
-      : !selB
-        ? `${names.get(selA)} is A. Now pick B.`
-        : loading
-          ? "loading…"
-          : "Click any country to start a new pair";
+    : !selA && !selB
+      ? "Pick country A on the map, or type its name in the A slot — or search a product"
+      : !selA && selB
+        ? `${names.get(selB)} is your market B. Now pick your country A — or click an exporter on the left.`
+        : !selB && selA
+          ? `${names.get(selA)} is A. Now pick B.`
+          : loading
+            ? "loading…"
+            : "Click any country to start a new pair";
 
   return (
     <div className="app">
@@ -221,10 +265,10 @@ export default function App() {
               direction={dir}
               showArcs={!!pairData}
             />
-            {!pairData && (
+            {!pairData && !productHit && (
               <div className="empty-float">
                 <div className="hero-empty-inner">
-                  <h2>Pick two countries</h2>
+                  <h2>Pick two countries — or search a product</h2>
                   <p>
                     See how much they trade directly, in goods and services,
                     and how much of it travels through middleman countries.
@@ -236,7 +280,51 @@ export default function App() {
                     <span className="step">2</span> pick country B, on the map
                     or by typing the name in the slots above.
                   </p>
+                  <div className="hero-product-search">
+                    <p className="hero-ps-label">selling something? start from the product</p>
+                    <ProductSearchInput
+                      placeholder="what does the world import? try “medicaments”, “wine”, “8542”…"
+                      ariaLabel="search a product globally"
+                      onPick={loadProduct}
+                    />
+                  </div>
                 </div>
+              </div>
+            )}
+            {!pairData && productHit && (
+              <div className="empty-float pg-float">
+                {productData ? (
+                  <ProductGlobal
+                    hit={productHit}
+                    data={productData}
+                    nameOf={(iso) => names.get(iso) ?? iso}
+                    flagOf={flagOf}
+                    onPickMarket={(iso) => replaceSlot("b", iso)}
+                    onPickSupplier={(iso) => replaceSlot("a", iso)}
+                    onChild={(code) => {
+                      if (code.length === 4) {
+                        loadProduct({
+                          code,
+                          name: hs4Label(code),
+                          kind: "heading",
+                        });
+                      } else {
+                        // hs6 child of the current heading: highlight in place
+                        setProductHit({
+                          code,
+                          name: hs6Label(code),
+                          kind: "hs6",
+                        });
+                      }
+                    }}
+                    onClose={() => {
+                      setProductHit(null);
+                      setProductData(null);
+                    }}
+                  />
+                ) : (
+                  <div className="hero-empty-inner">loading product…</div>
+                )}
               </div>
             )}
           </section>
